@@ -1,5 +1,7 @@
 package objects;
 
+import utils.BlockState;
+
 public class Block {
 	private BlockState blockState;
 	public Block(BlockState blockState) {

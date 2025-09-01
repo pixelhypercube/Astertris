@@ -2,6 +2,7 @@ package objects;
 
 import java.util.ArrayList;
 
+import utils.BlockColor;
 import utils.Direction;
 import utils.Position;
 

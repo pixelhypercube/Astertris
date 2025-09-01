@@ -3,6 +3,8 @@ package main;
 import java.util.*;
 
 import objects.*;
+import utils.BlockColor;
+import utils.BlockState;
 import utils.Direction;
 import utils.Position;
 
@@ -20,6 +22,8 @@ public class GameBoard {
 	
 	private Random random = new Random();
 	
+	private boolean gameOver;
+	
 	public GameBoard(int width, int height, int planetSize, int score) {
 		this.width = width;
 		this.height = height;
@@ -30,6 +34,8 @@ public class GameBoard {
 		this.score = score;
 		
 		this.borderWidth = 1;
+		
+		this.gameOver = false;
 		
 		this.board = new ArrayList<ArrayList<Block>>();
 		
@@ -54,7 +60,7 @@ public class GameBoard {
 					i<=this.cy+this.planetSize && 
 					j<=this.cx+this.planetSize)
 					state = BlockState.PLANET;
-				else if (i>=tetY &&
+				if (i>=tetY &&
 						i<tetY + tetH &&
 						j>=tetX &&
 						j<tetX + tetW)
@@ -64,13 +70,19 @@ public class GameBoard {
 						if (tetShape[i-tetY][j-tetX]==1) state = BlockState.TETROMINO_HOVERING;
 					}
 				}
-				else if (this.placedBlocks[i][j]!=null) {
+				if (this.placedBlocks[i][j]!=null) {
 					state = BlockState.TETROMINO_PLACED;
 				}
 				
 				this.board.get(i).add(new Block(state));
 			}
 		}
+	}
+	
+	public void restartGame() {
+		this.gameOver = false;
+		this.placedBlocks = new BlockColor[height][width];
+		this.genNewTetromino();
 	}
 	
 	public BlockState getCellBlockState(int x, int y) {
@@ -85,7 +97,7 @@ public class GameBoard {
 			else if (cellBlockState==BlockState.TETROMINO_HOVERING || cellBlockState==BlockState.TETROMINO_PLACED) return this.currTetromino.getColor();
 			else if (cellBlockState==BlockState.AIR) return BlockColor.BLACK;
 		}
-		return BlockColor.BLACK;
+		return null;
 	}
 	
 	//	tetromino management
@@ -144,6 +156,11 @@ public class GameBoard {
 			}
 		}
 		
+		this.clearPlanetLayers();
+		
+//		determine whether it's game oevr or not lmaoo
+		this.gameOver = this.isGameOver(); 
+		
 		this.genNewTetromino();
 	}
 	
@@ -172,6 +189,12 @@ public class GameBoard {
 			int i = blockPos[0] + ny;
 			int j = blockPos[1] + nx;
 						
+			
+			// OOB collision tingy
+			if (i < 0 || i >= placedBlocks.length || j < 0 || j >= placedBlocks[0].length) {
+		        return true;
+		    }
+			
 			// detect if it intersects other placed tetrominoes
 			if (this.placedBlocks[i][j] != null ||
 				this.getCellBlockState(i, j) == BlockState.PLANET) {
@@ -220,130 +243,135 @@ public class GameBoard {
 		if (!this.isFutureCollision(dir)) this.currTetromino.rotate(dir);
 	}
 	
-	private void clearTop() {
-	    int startX = this.cx-this.planetSize;   
-	    int endX = this.cx+this.planetSize;
-	    int startY = this.cy-this.planetSize-1;
-	    boolean full = true;
-	    for (int i = startY;i>=0;i--) {
-	    	for (int j = startX; j <= endX; j++) {
-		        if (this.board.get(j).get(i).getBlockState() != BlockState.TETROMINO_PLACED) {
-		        	full = false;
-		            break;
-		        }
-		    }
-	    	if (full) {
-	    		// do the clearing process
-	    		for (int j = startX;j<=endX;j++) {
-	    			this.placedBlocks[j][i] = null;
-    			}
-	    		// shift everything downward
-	    		for (int idx = i;idx>0;idx--) {
-	    			for (int j = startX;j<=endX;j++) {
-	    				BlockColor temp = this.placedBlocks[j][idx];
-	    				this.placedBlocks[j][idx] = this.placedBlocks[j][idx-1];
-	    				this.placedBlocks[j][idx-1] = temp;
-	    			}
-	    		}
-	    		this.score+=100;
-		    }
-	    }
-	}
-	
-	private void clearBottom() {
-	    int startX = this.cx - this.planetSize;   
+	private void clearPlanetLayers() {
+	    int startX = this.cx - this.planetSize;
 	    int endX = this.cx + this.planetSize;
-	    int startY = this.cy + this.planetSize + 1;
-	    boolean full = true;
+	    int startY = this.cy - this.planetSize;
+	    int endY = this.cy + this.planetSize;
 
-	    for (int i = startY; i < this.height; i++) {
-	        full = true;
+	    // TOP DIR
+	    for (int i = startY - 1; i >= 0; i--) {
+	        boolean full = true;
 	        for (int j = startX; j <= endX; j++) {
-	            if (this.board.get(j).get(i).getBlockState() != BlockState.TETROMINO_PLACED) {
+	            if (this.placedBlocks[j][i] == null) {
 	                full = false;
 	                break;
 	            }
 	        }
 	        if (full) {
-	            // clear the row
+	            // clear row
 	            for (int j = startX; j <= endX; j++) {
 	                this.placedBlocks[j][i] = null;
 	            }
-	            // shift everything downward
-	            for (int idx = i; idx < this.height - 1; idx++) {
+	            // shift above downward
+	            for (int idx = i; idx > 0; idx--) {
 	                for (int j = startX; j <= endX; j++) {
-	                    BlockColor temp = this.placedBlocks[j][idx];
-	                    this.placedBlocks[j][idx] = this.placedBlocks[j][idx + 1];
-	                    this.placedBlocks[j][idx + 1] = temp;
+	                    this.placedBlocks[j][idx] = this.placedBlocks[j][idx-1];
 	                }
 	            }
-	            this.score+=100;
+	            // clear top row
+	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][0] = null;
+
+	            this.score += 100;
+	            i++; // recheck this row
 	        }
 	    }
-	}
 
-	private void clearLeft() {
-	    int startY = this.cy - this.planetSize;   
-	    int endY = this.cy + this.planetSize;
-	    int startX = this.cx - this.planetSize - 1;
-	    boolean full = true;
-
-	    for (int j = startX; j >= 0; j--) {
-	        full = true;
-	        for (int i = startY; i <= endY; i++) {
-	            if (this.board.get(j).get(i).getBlockState() != BlockState.TETROMINO_PLACED) {
+	    // BOTTOM DIR
+	    for (int i = endY + 1; i < this.placedBlocks[0].length; i++) {
+	        boolean full = true;
+	        for (int j = startX; j <= endX; j++) {
+	            if (this.placedBlocks[j][i] == null) {
 	                full = false;
 	                break;
 	            }
 	        }
 	        if (full) {
-	            // clear the column
-	            for (int i = startY; i <= endY; i++) {
-	                this.placedBlocks[j][i] = null;
+	            // clear row
+	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][i] = null;
+	            // shift below upward
+	            for (int idx = i; idx < this.placedBlocks[0].length - 1; idx++) {
+	                for (int j = startX; j <= endX; j++) {
+	                    this.placedBlocks[j][idx] = this.placedBlocks[j][idx+1];
+	                }
 	            }
-	            // shift everything right
+	            // clear bottom row
+	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][this.placedBlocks[0].length - 1] = null;
+
+	            this.score += 100;
+	            i--; // recheck this row
+	        }
+	    }
+
+	    // LEFT DIR
+	    for (int j = startX - 1; j >= 0; j--) {
+	        boolean full = true;
+	        for (int i = startY; i <= endY; i++) {
+	            if (this.placedBlocks[j][i] == null) {
+	                full = false;
+	                break;
+	            }
+	        }
+	        if (full) {
+	            // clear column
+	            for (int i = startY; i <= endY; i++) this.placedBlocks[j][i] = null;
+	            // shift leftward
 	            for (int idx = j; idx > 0; idx--) {
 	                for (int i = startY; i <= endY; i++) {
-	                    BlockColor temp = this.placedBlocks[idx][i];
-	                    this.placedBlocks[idx][i] = this.placedBlocks[idx - 1][i];
-	                    this.placedBlocks[idx - 1][i] = temp;
+	                    this.placedBlocks[idx][i] = this.placedBlocks[idx-1][i];
 	                }
 	            }
-	            this.score+=100;
+	            // clear leftmost column
+	            for (int i = startY; i <= endY; i++) this.placedBlocks[0][i] = null;
+
+	            this.score += 100;
+	            j++; // recheck this column
 	        }
 	    }
-	}
 
-	private void clearRight() {
-	    int startY = this.cy - this.planetSize;   
-	    int endY = this.cy + this.planetSize;
-	    int startX = this.cx + this.planetSize + 1;
-	    boolean full = true;
-
-	    for (int j = startX; j < this.width; j++) {
-	        full = true;
+	    // RIGHT DIR
+	    for (int j = endX + 1; j < this.placedBlocks.length; j++) {
+	        boolean full = true;
 	        for (int i = startY; i <= endY; i++) {
-	            if (this.board.get(j).get(i).getBlockState() != BlockState.TETROMINO_PLACED) {
+	            if (this.placedBlocks[j][i] == null) {
 	                full = false;
 	                break;
 	            }
 	        }
 	        if (full) {
-	            // clear the column
-	            for (int i = startY; i <= endY; i++) {
-	                this.placedBlocks[j][i] = null;
-	            }
-	            // shift everything left
-	            for (int idx = j; idx < this.width - 1; idx++) {
+	            // clear column
+	            for (int i = startY; i <= endY; i++) this.placedBlocks[j][i] = null;
+	            // shift rightward
+	            for (int idx = j; idx < this.placedBlocks.length - 1; idx++) {
 	                for (int i = startY; i <= endY; i++) {
-	                    BlockColor temp = this.placedBlocks[idx][i];
-	                    this.placedBlocks[idx][i] = this.placedBlocks[idx + 1][i];
-	                    this.placedBlocks[idx + 1][i] = temp;
+	                    this.placedBlocks[idx][i] = this.placedBlocks[idx+1][i];
 	                }
 	            }
-	            this.score+=100;
+	            // clear rightmost column
+	            for (int i = startY; i <= endY; i++) this.placedBlocks[this.placedBlocks.length - 1][i] = null;
+
+	            this.score += 100;
+	            j--; // recheck this column
 	        }
 	    }
+	}
+	
+//	GAME OVERRR METHOD
+	
+	public boolean isGameOver() {
+		int minX = this.borderWidth, maxX = this.width-this.borderWidth-1;
+		int minY = this.borderWidth, maxY = this.height-this.borderWidth-1;
+		
+		for (int i = 0;i<this.height;i++) {
+			for (int j = 0;j<this.width;j++) {
+				if (i<=minY || i>=maxY || j<=minX || j>=maxX) {
+					if (this.placedBlocks[i][j]!=null) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 //	board render function
@@ -351,10 +379,7 @@ public class GameBoard {
 	public void updateBoard() {
 		// check if bars are filled on all 4 sides
 
-		clearTop();
-	    clearBottom();
-	    clearLeft();
-	    clearRight();
+//		clearPlanetLayers();
 		
 		int tetH = this.currTetromino.getHeight();
 		int tetW = this.currTetromino.getWidth();
@@ -370,12 +395,12 @@ public class GameBoard {
 					i<=this.cy+this.planetSize && 
 					j<=this.cx+this.planetSize)
 					state = BlockState.PLANET;
-				else if (i>=tetY && i<tetY + tetH && j>=tetX && j<tetX + tetW)
+				if (i>=tetY && i<tetY + tetH && j>=tetX && j<tetX + tetW)
 				{
 					int[][] tetShape = this.currTetromino.getTetrominoShape();
 					if (tetShape[i-tetY][j-tetX]==1) state = BlockState.TETROMINO_HOVERING;
 				}
-				else if (this.placedBlocks[i][j]!=null) {
+				if (this.placedBlocks[i][j]!=null) {
 					state = BlockState.TETROMINO_PLACED;
 				}
 				this.board.get(i).get(j).setBlockState(state);
@@ -413,6 +438,10 @@ public class GameBoard {
 			res += "\n";
 		}
 		return res;
+	}
+	
+	public boolean getGameOver() {
+		return this.gameOver;
 	}
 	
 	public int getScore() {
