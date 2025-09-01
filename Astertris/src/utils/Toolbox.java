@@ -22,6 +22,28 @@ public class Toolbox {
 		return Math.min(255, Math.max(0, Math.round(val*255)));
 	}
 	
+	private int clamp(int value) {
+	    return Math.max(0, Math.min(255, value));
+	}
+	
+	// weightage - 0 (color1), 1 (color2)
+	public Color blendColors(Color color1, Color color2, double weightage) {
+		weightage = Math.max(0.0, Math.min(1.0, weightage));
+		
+		double r1 = color1.getRed(),g1 = color1.getGreen(), b1 = color1.getBlue();
+		double r2 = color2.getRed(),g2 = color2.getGreen(), b2 = color2.getBlue();
+		
+//		System.out.println(r1 + " " + g1 + " " + b1);
+//		System.out.println(r2 + " " + g2 + " " + b2);
+		
+		int r = clamp((int)Math.round(r1*(1-weightage) + r2*weightage));
+		int g = clamp((int)Math.round(g1*(1-weightage) + g2*weightage));
+		int b = clamp((int)Math.round(b1*(1-weightage) + b2*weightage));
+//		System.out.println(r + " " + g + " " + b);
+//		System.out.println(r1*(1-weightage) + r2*weightage + " " + g1*(1-weightage) + g2*weightage + " " + b1*(1-weightage) + b2*weightage);
+		return new Color(r,g,b);
+	}
+	
 	public Color getColorFromHSL(int h, int s, int l) {
 		float sat = s/100f;
 		float light = l/100f;

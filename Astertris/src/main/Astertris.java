@@ -11,6 +11,7 @@ import javax.swing.Timer;
 
 import components.BoardPanel;
 import utils.Direction;
+import utils.Toolbox;
 
 public class Astertris extends JFrame implements KeyListener {
 	
@@ -19,56 +20,69 @@ public class Astertris extends JFrame implements KeyListener {
 	static GameBoard game = new GameBoard(WIDTH,HEIGHT,PLANET_SIZE,0);
 	
 //	components
-	private JLabel titleLabel, scoreLabel, creditLabel, gameOverLabel;
+	private JLabel titleLabel, scoreLabel, creditLabel, pausedLabel, gameOverLabel;
 //	private JLabel boardStrLabel;
 	private BoardPanel boardPanel;
 //	private String boardStr;
 	
-	private boolean isGameOver = false;
+	private Toolbox toolbox;
+	
+	private String gameState;
 	
 	Timer timer = new Timer(300,null);
+	Timer starTimer = new Timer(20,null);
 	
 	public Astertris() {
+		this.gameState = "home";
+		this.toolbox = new Toolbox();
+		
 		setTitle("Astertris");
-		setSize(560,700);
+		setSize(612,635);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addKeyListener(this);
 		setFocusable(true);
 		setLayout(null);
 		setVisible(true);
 		
-		
 //		components
 		
-		titleLabel = new JLabel("Astertris (Beta)");
-		titleLabel.setBounds(130, 10, 300, 40);
-	    titleLabel.setFont(new Font("Arial", Font.BOLD, 40));
+		titleLabel = new JLabel("<html><u><b>Astertris (Beta)</b></u></html>");
+		titleLabel.setBounds(200, 20, 300, 40);
+	    titleLabel.setFont(new Font("Arial", Font.PLAIN, 40));
+	    titleLabel.setVisible(true);
 		
 	    scoreLabel = new JLabel("Score: " + game.getScore());
 	    scoreLabel.setBounds(20, 60, 200, 30);
 	    scoreLabel.setFont(new Font("Arial", Font.PLAIN, 24));
+	    scoreLabel.setVisible(true);
 	    
 	    creditLabel = new JLabel("Made by @pixelhypercube!");
-		creditLabel.setBounds(330, 620, 250, 40);
+		creditLabel.setBounds(360, 730, 250, 40);
 	    creditLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+	    creditLabel.setVisible(true);
 	    
 	    gameOverLabel = new JLabel("Game Over! Press R to restart!");
-	    gameOverLabel.setBounds(140, 585, 560, 40);
+	    gameOverLabel.setBounds(180, 730, 350, 30);
 	    gameOverLabel.setFont(new Font("Arial", Font.BOLD, 20));
 	    gameOverLabel.setForeground(Color.red);
 	    gameOverLabel.setVisible(false);
 	    
+	    pausedLabel = new JLabel("Press 'P' or 'Esc' to "+(gameState.equals("paused")? "unpause" : "pause")+"!");
+	    pausedLabel.setBounds(20, 700, 400, 30);
+	    pausedLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 	    
-	    boardPanel = new BoardPanel(game);
+//	    add(titleLabel);
+//	    add(scoreLabel);
+//	    add(creditLabel);
+//	    
+	    boardPanel = new BoardPanel(game,this.gameState);
 	    add(boardPanel);
-	    boardPanel.setBounds(20, 90, 500, 500);
+	    boardPanel.setBounds(0, 0, 600, 600);
 	    boardPanel.repaint();
 		
 	    
-	    add(titleLabel);
-	    add(scoreLabel);
-	    add(creditLabel);
-	    add(gameOverLabel);
+//	    add(gameOverLabel);
+//	    add(pausedLabel);
 	    
 //	    update timer for tetromino to sink by gravity
 	    
@@ -76,53 +90,96 @@ public class Astertris extends JFrame implements KeyListener {
 	    	game.updateTetromino();
 	    	this.updateBoard();
 	    	
-	    	isGameOver = game.getGameOver();
-	    	if (isGameOver) {
-	    		timer.stop();
-	    		gameOverLabel.setVisible(isGameOver);
+	    	// generate stars
+	    	if (Math.random()<0.5) {
+	    		int size = (int)(Math.random()*5)+2;
+	    		int hue  = (int)(Math.random()*40+20);
+	    		int lum = (int)(Math.random()*50+20);
+	    		Color starColor = toolbox.getColorFromHSL(hue,100,lum);
+	    		this.boardPanel.generateStar(size,starColor);
 	    	}
+	    	
+	    	if (game.getGameOver()) this.toggleGameState("gameOver");
 	    });
-	    timer.start();
+	    
+	    starTimer.addActionListener(e -> {
+	    	boardPanel.updateStars();
+	    	boardPanel.repaint();
+	    });
+	}
+	
+	public void toggleGameState(String gameState) {
+		this.gameState = gameState;
+		boardPanel.setGameState(this.gameState);
+		if (gameState.equals("game")) {
+//			pausedLabel.setText("Press 'P' or 'Esc' to pause!");
+			timer.start();
+			starTimer.start();
+			
+//			gameOverLabel.setVisible(false);
+		} 
+		else if (gameState.equals("home")) {
+			timer.stop();
+			starTimer.stop();
+		}
+		else if (gameState.equals("paused")) {
+//			pausedLabel.setText("Press 'P' or 'Esc' to unpause!");
+			timer.stop();
+			starTimer.stop();
+		}
+		else if (gameState.equals("gameOver")) {
+			timer.stop();
+			starTimer.stop();
+			gameOverLabel.setVisible(true);
+		}
+		boardPanel.repaint();
+	}
+	
+	public void updateStars() {
+		boardPanel.updateStars();
+    	boardPanel.repaint();
 	}
 	
 	public void updateBoard() {
 		game.updateBoard();
-    	boardPanel.repaint();
     	scoreLabel.setText("Score: " + game.getScore());
 	}
 	
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
-		if (!isGameOver) {
+		if (this.gameState.equals("game") || this.gameState.equals("paused")) {
 			switch (key) {
 				case KeyEvent.VK_A:
-					game.moveCurrTetromino(Direction.RIGHT);
+					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.RIGHT);
 					break;
 				case KeyEvent.VK_LEFT:
-					game.rotateTetromino(Direction.COUNTERCLOCKWISE);
+					if (!gameState.equals("paused")) game.rotateTetromino(Direction.COUNTERCLOCKWISE);
 					break;
 				case KeyEvent.VK_D:
-					game.moveCurrTetromino(Direction.LEFT);
+					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.LEFT);
 					break;
 				case KeyEvent.VK_RIGHT:
-					game.rotateTetromino(Direction.CLOCKWISE);
+					if (!gameState.equals("paused")) game.rotateTetromino(Direction.CLOCKWISE);
 					break;
 				case KeyEvent.VK_SPACE:
-					game.updateTetromino();
+					if (!gameState.equals("paused")) game.updateTetromino();
 					break;
-//				DEBUG ONLY: type 'P' to place
-//				case KeyEvent.VK_P:
-//					game.placeTetromino();
-//					break;
+				case KeyEvent.VK_P:
+				case KeyEvent.VK_ESCAPE: {
+					if (this.gameState.equals("paused")) this.toggleGameState("game");
+					else this.toggleGameState("paused");
+				}
 			}
 			
 			this.updateBoard();
-		} else {
+		} else if (this.gameState.equals("home")) {
+			if (key==KeyEvent.VK_ENTER) {
+				this.toggleGameState("game");
+			}
+		} else if (this.gameState.equals("gameOver")) {
 			if (key==KeyEvent.VK_R) {
 				game.restartGame();
-				isGameOver = game.getGameOver();
-				timer.start();
-				gameOverLabel.setVisible(isGameOver);
+				this.toggleGameState("game");
 			}
 		}
 	}

@@ -16,6 +16,7 @@ public class GameBoard {
 	private ArrayList<ArrayList<Block>> board;
 	
 	private Tetromino currTetromino;
+	
 	private BlockColor[][] placedBlocks;
 	
 	private int score;
