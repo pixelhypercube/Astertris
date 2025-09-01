@@ -21,7 +21,7 @@ Inspired by the classic falling-block puzzle game, Astertris adds new gameplay c
 
 ## ⚠️ Project Status
 This project is currently in **Beta**.  
-Some features (such as game over conditions) are not fully implemented yet.
+Some features are not fully implemented yet.
 
 ---
 
