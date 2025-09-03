@@ -25,5 +25,10 @@ Some features are not fully implemented yet.
 
 ---
 
+## Download (Latest Version)
+[Latest Version (Beta 1.3.0)](https://github.com/pixelhypercube/Astertris/releases/tag/beta-1.3.0)
+
+---
+
 ### Demo
 ![Astertris Gameplay](demo.gif)
