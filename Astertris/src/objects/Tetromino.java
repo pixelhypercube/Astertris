@@ -6,49 +6,15 @@ import utils.BlockColor;
 import utils.Direction;
 import utils.Position;
 
+import utils.Toolbox;
+
 public class Tetromino {
 //	anchored to CENTER
 	int x,y,w,h,tetrominoId;
 	BlockColor color;
+	Toolbox toolbox;
 	
-	private final int[][][] tetrominoShapes = {
-		// O
-		{
-			{1,1},
-			{1,1}
-		},
-		// I
-		{
-			{1,1,1,1}
-		},
-		// T
-		{
-			{1,1,1},
-			{0,1,0}
-		}, 
-		// L
-		{
-			{1,0},
-			{1,0},
-			{1,1},
-		}, 
-		// J
-		{
-			{0,1},
-			{0,1},
-			{1,1},
-		}, 
-		// S
-		{
-			{0,1,1},
-			{1,1,0}
-		}, 
-		// Z
-		{
-			{1,1,0},
-			{0,1,1}
-		}, 
-	};
+	private int[][][] tetrominoShapes;
 	private int[][] selectedTetrominoShape;
 	
 	private ArrayList<int[]> solidBlocksPos = new ArrayList<int[]>();
@@ -58,6 +24,9 @@ public class Tetromino {
 		this.y = y;
 		this.tetrominoId = tetrominoId;
 		this.color = color;
+		
+		this.toolbox = new Toolbox();
+		this.tetrominoShapes = toolbox.getTetrominoShapes();
 		
 		this.selectedTetrominoShape = this.tetrominoShapes[this.tetrominoId];
 		this.h = this.selectedTetrominoShape.length;

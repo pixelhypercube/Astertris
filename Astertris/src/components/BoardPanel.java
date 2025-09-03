@@ -3,21 +3,25 @@ package components;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 
 import javax.swing.JPanel;
 
+import decorations.Star;
 import main.GameBoard;
 import utils.BlockColor;
 import utils.BlockState;
 import utils.Toolbox;
 
-import objects.Star;
-
 import java.awt.Color;
 
-public class BoardPanel extends JPanel {
+public class BoardPanel extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1226815287986568967L;
 	private GameBoard game;
 	private final int cellSize = 12;
@@ -26,10 +30,22 @@ public class BoardPanel extends JPanel {
 	
 	private String gameState;
 	
-//	mapping colors list
+//	HashMapping colors list
 	private EnumMap<BlockColor,Color> colorsList;
 	
 	private ArrayList<Star> stars;
+	
+	private Graphics2D g2D;
+	
+//	components
+	
+	private HashMap<String,ArrayList<GameButton>> buttonsHashMap;
+	
+	private GameStateListener listener;
+	
+	public void setGameStateListener(GameStateListener listener) {
+		this.listener = listener;
+	}
 	
 	public BoardPanel(GameBoard game, String gameState) {
 		this.game = game;
@@ -52,6 +68,23 @@ public class BoardPanel extends JPanel {
         colorsList.put(BlockColor.PINK, new Color(255, 192, 203));
         colorsList.put(BlockColor.WHITE, new Color(255, 255, 255));
         this.toolbox = new Toolbox();
+        
+        this.buttonsHashMap = new HashMap<String, ArrayList<GameButton>>();
+        
+        this.buttonsHashMap.put("home", new ArrayList<>());
+        GameButton startBtn = new GameButton(230,350,150,75,true,24,"START",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("home").add(startBtn);
+        
+        this.buttonsHashMap.put("paused", new ArrayList<>());
+        GameButton resumeBtn = new GameButton(230,350,150,75,false,24,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("paused").add(resumeBtn);
+        
+        this.buttonsHashMap.put("gameOver", new ArrayList<>());
+        GameButton restartBtn = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("gameOver").add(restartBtn);
+        
+        this.addMouseListener(this);
+        this.addMouseMotionListener(this);
 	}
 	
 	// nearer stars are bigger and travel faster
@@ -62,19 +95,129 @@ public class BoardPanel extends JPanel {
 	
 	public void updateStars() {
 		stars.forEach(Star::update);
-	    stars.removeIf(star->star.getX()<0);
+	    stars.removeIf(star->star.getX()<=0);
 	}
 
 	public void setGameState(String gameState) {
 		this.gameState = gameState;
+		
+		// change btn visibility based on HashMaps
+		for (String keyString : this.buttonsHashMap.keySet()) {
+			for (GameButton btn : this.buttonsHashMap.get(keyString)) {
+				btn.setVisible(keyString.equals(gameState));
+			}
+		}
 	}
 	
 	@Override
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mouseDragged(e);
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mouseMoved(e);
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible() && button.getButtonBounds().contains(e.getPoint())) {
+					button.mouseClicked(e);
+					if (button.getNextGameState()!=null && listener != null) {
+						listener.onGameStateChange(button.getNextGameState());
+					}
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mousePressed(e);
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mouseReleased(e);
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mouseEntered(e);
+				}
+			}
+		}
+		repaint();
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+		if (buttonList != null) {
+			for (GameButton button : this.buttonsHashMap.get(this.gameState)) {
+				if (button.isVisible()) {
+					button.mouseExited(e);
+				}
+			}
+		}
+		repaint();
+	}
+	
+//	@Override
+	public void paint(Graphics g) {
+//		super.paintComponent(g);
+		g2D = (Graphics2D)g;
 		
-		g.setColor(Color.BLACK);
-	    g.fillRect(0, 0, getWidth(), getHeight());
+		g2D.setColor(Color.BLACK);
+//	    g2D.fillRect(0, 0, getWidth(), getHeight());
+		g2D.fillRect(0, 0, game.getWidth()*this.cellSize, game.getHeight()*this.cellSize);
 	    
 	    // decorations
 	    
@@ -103,94 +246,105 @@ public class BoardPanel extends JPanel {
 	                    continue;
 	            }
 	            if (color != null) {
-	                g.setColor(color);
-	                g.fillRect(j*cellSize, i*cellSize, cellSize, cellSize);
+	                g2D.setColor(color);
+	                g2D.fillRect(j*cellSize, i*cellSize, cellSize, cellSize);
 	                
 	                Color bevelTopColor = this.toolbox.blendColors(color, Color.WHITE, 0.35);
 	                Color bevelBottomColor = this.toolbox.blendColors(color, Color.BLACK, 0.35);
-	                // bevel-like texture
+	                // bevel
+	                
 	                if (!this.gameState.equals("home")) {
 	                	// top 
-	                    g.setColor(bevelTopColor);
-	                    g.fillRect(j*cellSize,i*cellSize,cellSize,2);
+	                    g2D.setColor(bevelTopColor);
+	                    g2D.fillRect(j*cellSize,i*cellSize,cellSize,2);
 
 	                    // left
-	                    g.fillRect(j*cellSize,i*cellSize,2,cellSize);
+	                    g2D.fillRect(j*cellSize,i*cellSize,2,cellSize);
 
 	                    // bottom
-	                    g.setColor(bevelBottomColor);
-	                    g.fillRect(j*cellSize,(i+1)*cellSize-2,cellSize,2);
+	                    g2D.setColor(bevelBottomColor);
+	                    g2D.fillRect(j*cellSize,(i+1)*cellSize-2,cellSize,2);
 
 	                    // right
-	                    g.fillRect((j+1)*cellSize-2,i*cellSize,2,cellSize);
+	                    g2D.fillRect((j+1)*cellSize-2,i*cellSize,2,cellSize);
 	                }
+                    
+                    // draw border
+                	g2D.setColor(Color.BLACK);
+                	g2D.drawRect(j*cellSize,i*cellSize,cellSize,cellSize);
 	            }
 			}
 		}
 		
-		// linesss
-	    g.setColor(new Color(20,20,20));
-	    for (int i = 0; i <= game.getHeight(); i++) {
-	        g.drawLine(0, i * cellSize, game.getWidth() * cellSize, i * cellSize);
-	    }
-	    for (int j = 0; j <= game.getWidth(); j++) {
-	        g.drawLine(j * cellSize, 0, j * cellSize, game.getHeight() * cellSize);
-	    }
+//		 linesss
+//	    g2D.setColor(new Color(20,20,20));
+//	    for (int i = 0; i <= game.getHeight(); i++) {
+//	        g2D.drawLine(0, i * cellSize, game.getWidth() * cellSize, i * cellSize);
+//	    }
+//	    for (int j = 0; j <= game.getWidth(); j++) {
+//	        g2D.drawLine(j * cellSize, 0, j * cellSize, game.getHeight() * cellSize);
+//	    }
 	    // LABELS
 	    
 	    // score
-//	    g.setColor(Color.WHITE);
-//    	g.drawRect(20, 20, 240, 40);
-//    	g.setColor(Color.BLACK);
-//    	g.fillRect(20, 20, 240, 40);
-    	g.setColor(Color.white);
-    	g.setFont(new Font("Arial",Font.PLAIN, 20));
-    	g.drawString("Score: "+game.getScore(), 10, 30);
+    	g2D.setColor(Color.white);
+    	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
+    	g2D.drawString("Score: "+toolbox.renderInt(6,game.getScore()), 10, 30);
 	    
 	    if (this.gameState.equals("home")) {
-	    	g.setColor(Color.WHITE);
-	    	g.drawRect(130, 170, 345, 160);
-	    	g.setColor(Color.BLACK);
-	    	g.fillRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.BLACK);
+	    	g2D.fillRect(130, 170, 345, 160);
 	    	
-	    	g.setColor(Color.white);
-	    	g.setFont(new Font("Arial",Font.BOLD, 70));
-	    	g.drawString("Astertris", 160, 240);
+	    	g2D.setColor(Color.white);
+	    	g2D.setFont(toolbox.getFont(Font.BOLD,45));
+	    	g2D.drawString("Astertris", 150, 240);
 	    	
-	    	g.setColor(Color.white);
-	    	g.setFont(new Font("Arial",Font.PLAIN,30));
-	    	g.drawString("Press 'Enter' to start!", 165, 280);
+	    	g2D.setColor(Color.white);
+	    	g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    	g2D.drawString("Tetris, but on an asteroid!", 145, 270);
 	    	
-	    	g.setColor(Color.WHITE);
-	    	g.setFont(new Font("Arial",Font.ITALIC,16));
-	    	g.drawString("Made by @pixelhypercube", 215, 310);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.setFont(toolbox.getFont(Font.ITALIC,14));
+	    	g2D.drawString("Made by @pixelhypercube", 185, 310);
 	    } else if (this.gameState.equals("paused")) {
-	    	g.setColor(Color.WHITE);
-	    	g.drawRect(130, 170, 345, 160);
-	    	g.setColor(Color.BLACK);
-	    	g.fillRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.BLACK);
+	    	g2D.fillRect(130, 170, 345, 160);
 	    	
-	    	g.setColor(Color.WHITE);
-	    	g.setFont(new Font("Arial",Font.BOLD, 40));
-	    	g.drawString("Game Paused!", 165, 240);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.setFont(toolbox.getFont(Font.BOLD,35));
+	    	g2D.drawString("Game Paused!", 140, 240);
 	    	
-	    	g.setColor(Color.WHITE);
-	    	g.setFont(new Font("Arial",Font.PLAIN,20));
-	    	g.drawString("Press 'P' or 'Esc' to unpause!", 180, 280);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
+	    	g2D.drawString("Press 'P' or 'Esc' to unpause!", 147, 280);
 	    } else if (this.gameState.equals("gameOver")) {
 //	    	gameover window
-	    	g.setColor(Color.WHITE);
-	    	g.drawRect(100, 200, 400, 225);
-	    	g.setColor(Color.BLACK);
-	    	g.fillRect(100, 200, 400, 225);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.BLACK);
+	    	g2D.fillRect(130, 170, 345, 160);
 	    	
-	    	g.setColor(Color.WHITE);
-	    	g.setFont(new Font("Arial",Font.BOLD,60));
-	    	g.drawString("Game Over!", 130, 300);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.setFont(toolbox.getFont(Font.BOLD,40));
+	    	g2D.drawString("Game Over!", 150, 240);
 	    	
-	    	g.setColor(Color.WHITE);
-	    	g.setFont(new Font("Arial",Font.BOLD,30));
-	    	g.drawString("Press 'R' to restart!", 165, 350);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
+	    	g2D.drawString("Score: ", 200, 280);
+	    	g2D.drawString(toolbox.renderInt(6,game.getScore()),300,280);
+//	    	g2D.drawString("High Score: "+game.getScore(), 250, 280);
+	    }
+	    
+	    // render btns
+	    ArrayList<GameButton> buttonList = this.buttonsHashMap.get(this.gameState);
+	    if (buttonList != null) {
+	    	for (GameButton btn : this.buttonsHashMap.get(this.gameState)) {
+		    	btn.paintComponent(g);
+		    }
 	    }
 	}
 }

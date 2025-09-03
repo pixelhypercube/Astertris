@@ -8,6 +8,12 @@ import utils.BlockState;
 import utils.Direction;
 import utils.Position;
 
+import java.util.Queue;
+
+import components.NextTetPanel;
+
+import java.util.LinkedList;
+
 public class GameBoard {
 	private int cx,cy;
 	private int width, height, planetSize;
@@ -25,12 +31,23 @@ public class GameBoard {
 	
 	private boolean gameOver;
 	
+	private BlockColor[] tetColors;
+	private BlockColor currTetColor;
+	private Queue<Integer> tetIdxQueue;
+	private Queue<Integer> colorIdxQueue;
+	
+	private NextTetPanel nextTetPanel;
+	
 	public GameBoard(int width, int height, int planetSize, int score) {
 		this.width = width;
 		this.height = height;
 		this.planetSize = planetSize;
 		this.cx = width/2;
 		this.cy = height/2;
+		
+		this.tetColors = new BlockColor[]{BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
+		this.setCurrTetColor(tetColors[random.nextInt(tetColors.length)]);
+		
 		
 		this.score = score;
 		
@@ -45,7 +62,19 @@ public class GameBoard {
 		
 		// INIT TETROMINO
 		
-		this.genNewTetromino();
+		this.tetIdxQueue = new LinkedList<Integer>();
+		
+		for (int i = 0;i<5;i++) {
+			this.tetIdxQueue.add(random.nextInt(0,7));
+		}
+		
+		this.colorIdxQueue = new LinkedList<Integer>();
+		
+		for (int i = 0;i<5;i++) {
+			this.colorIdxQueue.add(random.nextInt(tetColors.length));
+		}
+		this.genNewTetromino(this.tetIdxQueue.remove(), this.tetColors[this.colorIdxQueue.remove()]);
+		
 		int tetX = this.currTetromino.getX();
 		int tetY = this.currTetromino.getY();
 		int tetW = this.currTetromino.getWidth();
@@ -80,10 +109,26 @@ public class GameBoard {
 		}
 	}
 	
+	public void setNextTetPanel(NextTetPanel nextTetPanel) {
+		this.nextTetPanel = nextTetPanel;
+	}
+	
 	public void restartGame() {
 		this.gameOver = false;
 		this.placedBlocks = new BlockColor[height][width];
-		this.genNewTetromino();
+		this.tetIdxQueue.clear();
+		
+		for (int i = 0;i<5;i++) {
+			this.tetIdxQueue.add(random.nextInt(0,7));
+		}
+		
+		this.colorIdxQueue.clear();
+		
+		for (int i = 0;i<5;i++) {
+			this.colorIdxQueue.add(random.nextInt(tetColors.length));
+		}
+		this.genNewTetromino(this.tetIdxQueue.remove(), this.tetColors[this.colorIdxQueue.remove()]);
+		
 	}
 	
 	public BlockState getCellBlockState(int x, int y) {
@@ -103,14 +148,9 @@ public class GameBoard {
 	
 	//	tetromino management
 	
-	public void genNewTetromino() {
+	public void genNewTetromino(int tetId, BlockColor color) {
 		Position[] faces = Position.values();
 		Position face = faces[random.nextInt(faces.length)];
-		
-		BlockColor[] tetColors = {BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
-		BlockColor color = tetColors[random.nextInt(tetColors.length)];
-		
-		int tetId = random.nextInt(0,7);
 		
 		int tetX = 0,tetY = 0;
 		Tetromino tempTetromino = new Tetromino(tetX,tetY,tetId,color);
@@ -137,6 +177,11 @@ public class GameBoard {
 		}
 		
 		this.currTetromino = new Tetromino(tetX,tetY,tetId,color);
+		// append new tet
+		this.tetIdxQueue.add(random.nextInt(0,7));
+		this.colorIdxQueue.add(random.nextInt(this.tetColors.length));
+		
+		if (nextTetPanel!=null) this.nextTetPanel.repaint();
 	}
 	
 	public void placeTetromino() {
@@ -159,10 +204,10 @@ public class GameBoard {
 		
 		this.clearPlanetLayers();
 		
-//		determine whether it's game oevr or not lmaoo
+//		determine whether it's game over or not lmaoo
 		this.gameOver = this.isGameOver(); 
 		
-		this.genNewTetromino();
+		this.genNewTetromino(this.tetIdxQueue.remove(),this.tetColors[this.colorIdxQueue.remove()]);
 	}
 	
 	public void moveCurrTetromino(Direction dir) {
@@ -231,8 +276,6 @@ public class GameBoard {
 	// update tetromino due to gravity (USING TICKS)
 	public void updateTetromino() {
 //		detect tetromino touched either planet or other tetrominoes
-//		int tetX = this.currTetromino.getX();
-//		int tetY = this.currTetromino.getY();
 		
 		int[] delta = this.currTetromino.calcNextPos(this.cx,this.cy,this.width,this.height,this.planetSize);
 		if (this.isFutureCollision(delta)) this.placeTetromino();
@@ -441,6 +484,14 @@ public class GameBoard {
 		return res;
 	}
 	
+	public Queue<Integer> getTetIdxQueue() {
+		return this.tetIdxQueue;
+	}
+	
+	public Queue<Integer> getColorIdxQueue() {
+		return this.colorIdxQueue;
+	}
+	
 	public boolean getGameOver() {
 		return this.gameOver;
 	}
@@ -499,5 +550,13 @@ public class GameBoard {
 
 	public void setBoard(ArrayList<ArrayList<Block>> board) {
 		this.board = board;
+	}
+
+	public BlockColor getCurrTetColor() {
+		return currTetColor;
+	}
+
+	public void setCurrTetColor(BlockColor currTetColor) {
+		this.currTetColor = currTetColor;
 	}
 }

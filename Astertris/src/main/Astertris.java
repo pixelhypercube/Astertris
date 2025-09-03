@@ -1,35 +1,37 @@
 package main;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.Timer;
 
 import components.BoardPanel;
+import components.GameStateListener;
+import components.NextTetPanel;
 import utils.Direction;
 import utils.Toolbox;
 
-public class Astertris extends JFrame implements KeyListener {
+public class Astertris extends JFrame implements KeyListener, GameStateListener {
 	
 	private static final long serialVersionUID = 5953697399851869782L;
 	final static int WIDTH = 51, HEIGHT = 51, PLANET_SIZE = 5; 
-	static GameBoard game = new GameBoard(WIDTH,HEIGHT,PLANET_SIZE,0);
+	GameBoard game;
 	
 //	components
-	private JLabel titleLabel, scoreLabel, creditLabel, pausedLabel, gameOverLabel;
 //	private JLabel boardStrLabel;
 	private BoardPanel boardPanel;
 //	private String boardStr;
+	private NextTetPanel nextTetPanel;
 	
 	private Toolbox toolbox;
 	
 	private String gameState;
 	
-	Timer timer = new Timer(300,null);
+	private final int nextTetPanelWidth = 100;
+	
+	Timer timer = new Timer(250,null);
 	Timer starTimer = new Timer(20,null);
 	
 	public Astertris() {
@@ -37,48 +39,36 @@ public class Astertris extends JFrame implements KeyListener {
 		this.toolbox = new Toolbox();
 		
 		setTitle("Astertris");
-		setSize(612,635);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addKeyListener(this);
 		setFocusable(true);
 		setLayout(null);
 		setVisible(true);
+		setResizable(false);
 		
 //		components
 		
-		titleLabel = new JLabel("<html><u><b>Astertris (Beta)</b></u></html>");
-		titleLabel.setBounds(200, 20, 300, 40);
-	    titleLabel.setFont(new Font("Arial", Font.PLAIN, 40));
-	    titleLabel.setVisible(true);
-		
-	    scoreLabel = new JLabel("Score: " + game.getScore());
-	    scoreLabel.setBounds(20, 60, 200, 30);
-	    scoreLabel.setFont(new Font("Arial", Font.PLAIN, 24));
-	    scoreLabel.setVisible(true);
+		// init game
+	    game = new GameBoard(WIDTH,HEIGHT,PLANET_SIZE,0);
 	    
-	    creditLabel = new JLabel("Made by @pixelhypercube!");
-		creditLabel.setBounds(360, 730, 250, 40);
-	    creditLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-	    creditLabel.setVisible(true);
+	    nextTetPanel = new NextTetPanel(game,nextTetPanelWidth,600);
+	    add(nextTetPanel);
+	    nextTetPanel.setBounds(600,0,nextTetPanelWidth,600);
+	    nextTetPanel.repaint();
 	    
-	    gameOverLabel = new JLabel("Game Over! Press R to restart!");
-	    gameOverLabel.setBounds(180, 730, 350, 30);
-	    gameOverLabel.setFont(new Font("Arial", Font.BOLD, 20));
-	    gameOverLabel.setForeground(Color.red);
-	    gameOverLabel.setVisible(false);
+	    game.setNextTetPanel(nextTetPanel);
 	    
-	    pausedLabel = new JLabel("Press 'P' or 'Esc' to "+(gameState.equals("paused")? "unpause" : "pause")+"!");
-	    pausedLabel.setBounds(20, 700, 400, 30);
-	    pausedLabel.setFont(new Font("Arial", Font.PLAIN, 16));
 	    
-//	    add(titleLabel);
-//	    add(scoreLabel);
-//	    add(creditLabel);
-//	    
 	    boardPanel = new BoardPanel(game,this.gameState);
+	    boardPanel.setGameStateListener(this);
 	    add(boardPanel);
 	    boardPanel.setBounds(0, 0, 600, 600);
 	    boardPanel.repaint();
+	   
+	    
+	    
+	    // set resolution
+	    setSize(612+nextTetPanelWidth,635);
 		
 	    
 //	    add(gameOverLabel);
@@ -94,8 +84,10 @@ public class Astertris extends JFrame implements KeyListener {
 	    	if (Math.random()<0.5) {
 	    		int size = (int)(Math.random()*5)+2;
 	    		int hue  = (int)(Math.random()*40+20);
-	    		int lum = (int)(Math.random()*50+20);
+	    		int lum = (int)(Math.random()*50+40);
 	    		Color starColor = toolbox.getColorFromHSL(hue,100,lum);
+	    		hue = (int)(Math.random()*40+150);
+	    		if (Math.random()<0.2) starColor = toolbox.getColorFromHSL(hue, size, lum);
 	    		this.boardPanel.generateStar(size,starColor);
 	    	}
 	    	
@@ -106,6 +98,11 @@ public class Astertris extends JFrame implements KeyListener {
 	    	boardPanel.updateStars();
 	    	boardPanel.repaint();
 	    });
+	}
+	
+	@Override
+	public void onGameStateChange(String newState) {
+		this.toggleGameState(newState);
 	}
 	
 	public void toggleGameState(String gameState) {
@@ -130,7 +127,7 @@ public class Astertris extends JFrame implements KeyListener {
 		else if (gameState.equals("gameOver")) {
 			timer.stop();
 			starTimer.stop();
-			gameOverLabel.setVisible(true);
+//			gameOverLabel.setVisible(true);
 		}
 		boardPanel.repaint();
 	}
@@ -142,7 +139,7 @@ public class Astertris extends JFrame implements KeyListener {
 	
 	public void updateBoard() {
 		game.updateBoard();
-    	scoreLabel.setText("Score: " + game.getScore());
+//    	scoreLabel.setText("Score: " + game.getScore());
 	}
 	
 	public void keyPressed(KeyEvent e) {

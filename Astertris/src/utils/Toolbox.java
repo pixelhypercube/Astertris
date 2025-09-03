@@ -1,8 +1,59 @@
 package utils;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Toolbox {
+	
+	private final String CUSTOM_FONT_PATH = "/assets/fonts/Pixel_Emulator.otf";
+	private final int[][][] tetrominoShapes = {
+			// O
+			{
+				{1,1},
+				{1,1}
+			},
+			// I
+			{
+				{1,1,1,1}
+			},
+			// T
+			{
+				{1,1,1},
+				{0,1,0}
+			}, 
+			// L
+			{
+				{1,0},
+				{1,0},
+				{1,1},
+			}, 
+			// J
+			{
+				{0,1},
+				{0,1},
+				{1,1},
+			}, 
+			// S
+			{
+				{0,1,1},
+				{1,1,0}
+			}, 
+			// Z
+			{
+				{1,1,0},
+				{0,1,1}
+			}, 
+		};
+	public int[][][] getTetrominoShapes() {
+		return tetrominoShapes;
+	}
+	
+	public String renderInt(int len, int num) {
+	    return String.format("%0" + len + "d", num);
+	}
 	
 //	COLOR METHODS
 	public Color getColorFromRGB(int r, int g, int b) {
@@ -42,6 +93,20 @@ public class Toolbox {
 //		System.out.println(r + " " + g + " " + b);
 //		System.out.println(r1*(1-weightage) + r2*weightage + " " + g1*(1-weightage) + g2*weightage + " " + b1*(1-weightage) + b2*weightage);
 		return new Color(r,g,b);
+	}
+	
+	public Font getFont(int fontStyle, int size) {
+		InputStream is = getClass().getResourceAsStream(CUSTOM_FONT_PATH);
+		Font customFont = null;
+		try {
+			customFont = Font.createFont(Font.TRUETYPE_FONT, is);
+			customFont = customFont.deriveFont(fontStyle, size);
+		} catch (FontFormatException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			customFont = new Font("Arial", fontStyle, (int)size);
+		}
+		return customFont;
 	}
 	
 	public Color getColorFromHSL(int h, int s, int l) {
