@@ -7,10 +7,12 @@ import utils.BlockColor;
 import utils.BlockState;
 import utils.Direction;
 import utils.Position;
+import utils.Toolbox;
 
 import java.util.Queue;
 
 import components.NextTetPanel;
+import components.StatPanel;
 
 import java.util.LinkedList;
 
@@ -37,6 +39,10 @@ public class GameBoard {
 	private Queue<Integer> colorIdxQueue;
 	
 	private NextTetPanel nextTetPanel;
+	private StatPanel statPanel;
+	
+	private int[][] stats;
+	private Toolbox toolbox = new Toolbox();
 	
 	public GameBoard(int width, int height, int planetSize, int score) {
 		this.width = width;
@@ -48,7 +54,6 @@ public class GameBoard {
 		this.tetColors = new BlockColor[]{BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
 		this.setCurrTetColor(tetColors[random.nextInt(tetColors.length)]);
 		
-		
 		this.score = score;
 		
 		this.borderWidth = 1;
@@ -59,6 +64,14 @@ public class GameBoard {
 		
 		// set placedBlocks dims
 		this.placedBlocks = new BlockColor[height][width];
+		
+		// GET STATS
+		this.stats = new int[toolbox.getTetrominoShapes().length][2];
+		
+		for (int i = 0;i<this.stats.length;i++) {
+			this.stats[i][0] = i;
+			this.stats[i][1] = 0;
+		}
 		
 		// INIT TETROMINO
 		
@@ -107,6 +120,10 @@ public class GameBoard {
 				this.board.get(i).add(new Block(state));
 			}
 		}
+	}
+	
+	public void setStatPanel(StatPanel statPanel) {
+		this.statPanel = statPanel;
 	}
 	
 	public void setNextTetPanel(NextTetPanel nextTetPanel) {
@@ -207,7 +224,10 @@ public class GameBoard {
 //		determine whether it's game over or not lmaoo
 		this.gameOver = this.isGameOver(); 
 		
+		this.stats[this.currTetromino.getTetrominoId()][1]++;
+		
 		this.genNewTetromino(this.tetIdxQueue.remove(),this.tetColors[this.colorIdxQueue.remove()]);
+		if (statPanel!=null) this.statPanel.repaint();
 	}
 	
 	public void moveCurrTetromino(Direction dir) {
@@ -558,5 +578,9 @@ public class GameBoard {
 
 	public void setCurrTetColor(BlockColor currTetColor) {
 		this.currTetColor = currTetColor;
+	}
+
+	public int[][] getStats() {
+		return stats;
 	}
 }

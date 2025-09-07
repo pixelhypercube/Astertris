@@ -19,6 +19,7 @@ import utils.BlockColor;
 import utils.BlockState;
 import utils.Toolbox;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 
 public class BoardPanel extends JPanel implements MouseListener, MouseMotionListener {
@@ -72,8 +73,10 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap = new HashMap<String, ArrayList<GameButton>>();
         
         this.buttonsHashMap.put("home", new ArrayList<>());
-        GameButton startBtn = new GameButton(230,350,150,75,true,24,"START",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        GameButton startBtn = new GameButton(130,350,150,75,true,24,"START",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("home").add(startBtn);
+        GameButton helpBtn = new GameButton(325,350,150,75,true,24,"HELP",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"help_home");
+        this.buttonsHashMap.get("home").add(helpBtn);
         
         this.buttonsHashMap.put("paused", new ArrayList<>());
         GameButton resumeBtn = new GameButton(230,350,150,75,false,24,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
@@ -82,6 +85,14 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap.put("gameOver", new ArrayList<>());
         GameButton restartBtn = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("gameOver").add(restartBtn);
+        
+        this.buttonsHashMap.put("help_home", new ArrayList<>());
+        GameButton backBtn = new GameButton(225,470,150,40,false,16,"BACK",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"home");
+        this.buttonsHashMap.get("help_home").add(backBtn);
+        
+        this.buttonsHashMap.put("help_game", new ArrayList<>());
+        GameButton backGameBtn = new GameButton(215,470,170,40,false,16,"BACK TO GAME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("help_game").add(backGameBtn);
         
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
@@ -104,7 +115,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 		// change btn visibility based on HashMaps
 		for (String keyString : this.buttonsHashMap.keySet()) {
 			for (GameButton btn : this.buttonsHashMap.get(keyString)) {
-				btn.setVisible(keyString.equals(gameState));
+				btn.setVisibility(keyString.equals(gameState));
 			}
 		}
 	}
@@ -210,6 +221,79 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 		repaint();
 	}
 	
+	// special helper function for help dialog
+	public void renderHelpDialog(Graphics g) {
+	    g2D = (Graphics2D)g;
+	    g2D.setStroke(new BasicStroke(
+	        2.0f,
+	        BasicStroke.CAP_ROUND,
+	        BasicStroke.JOIN_ROUND,
+	        10.0f
+	    ));
+	    
+	    g2D.setColor(Color.BLACK);
+	    g2D.fillRect(130, 100, 345, 420);
+	    g2D.setColor(Color.WHITE);
+	    g2D.drawRect(130, 100, 345, 420);
+	    
+	    g2D.setColor(Color.WHITE);
+	    g2D.setFont(toolbox.getFont(Font.BOLD,30));
+	    g2D.drawString("HELP", 260, 140);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,20));
+	    g2D.drawString("CONTROLS:", 240, 180);
+	    
+	    g2D.setColor(Color.WHITE);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("Rot. CC", 277, 205);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    g2D.drawString("W", 285, 235);
+	    g.setFont(new Font("Arial",Font.BOLD,18));
+	    g2D.drawString("↑", 304, 235);
+	    g2D.drawRect(280, 210, 40, 40);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("Rot. CCW", 275, 310);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    g2D.drawString("S", 285, 280);
+	    g.setFont(new Font("Arial",Font.BOLD,18));
+	    g2D.drawString("↓", 304, 280);
+	    g2D.drawRect(280, 255, 40, 40);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("Orbit Left", 155, 280);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    g2D.drawString("A", 240, 280);
+	    g.setFont(new Font("Arial",Font.BOLD,18));
+	    g2D.drawString("←", 254, 280);
+	    g2D.drawRect(235, 255, 40, 40);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("Orbit Right", 370, 280);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    g2D.drawString("D", 330, 280);
+	    g.setFont(new Font("Arial",Font.BOLD,18));
+	    g2D.drawString("→", 344, 280);
+	    g2D.drawRect(325, 255, 40, 40);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("SPEED UP", 270, 380);
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+	    g2D.drawString("SPACE", 270, 350);
+	    g2D.drawRect(235, 325, 130, 40);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,20));
+	    g2D.drawString("How to play:", 220, 415);
+	    
+	    g2D.setFont(toolbox.getFont(Font.PLAIN,10));
+	    g2D.drawString("Just like Tetris, gain points by forming", 155, 435);
+	    g2D.drawString("lines on all 4 sides of the asteroid!", 155, 450);
+	}
+
+	
 //	@Override
 	public void paint(Graphics g) {
 //		super.paintComponent(g);
@@ -235,7 +319,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	            switch (state) {
 	                case TETROMINO_PLACED:
 	                case TETROMINO_HOVERING:
-	                	if (this.gameState.equals("home")) color = Color.BLACK;
+	                	if (this.gameState.equals("home") || this.gameState.equals("help_home")) color = Color.BLACK;
 	                	else color = colorsList.get(game.getCellColor(i, j));
 	                    break;
 	                case PLANET:
@@ -253,7 +337,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	                Color bevelBottomColor = this.toolbox.blendColors(color, Color.BLACK, 0.35);
 	                // bevel
 	                
-	                if (!this.gameState.equals("home")) {
+	                if (!(this.gameState.equals("home") || this.gameState.equals("help_home"))) {
 	                	// top 
 	                    g2D.setColor(bevelTopColor);
 	                    g2D.fillRect(j*cellSize,i*cellSize,cellSize,2);
@@ -290,12 +374,23 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
     	g2D.setColor(Color.white);
     	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
     	g2D.drawString("Score: "+toolbox.renderInt(6,game.getScore()), 10, 30);
+    	
+    	// H for Help!
+    	g2D.setColor(Color.white);
+    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
+    	g2D.drawString("Press 'H' for help!", 10, 585);
 	    
+    	g2D.setStroke(new BasicStroke(
+	    	2.0f,
+	    	BasicStroke.CAP_ROUND,
+	    	BasicStroke.JOIN_ROUND,
+	    	10.0f
+	    ));
 	    if (this.gameState.equals("home")) {
-	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
 	    	g2D.setColor(Color.BLACK);
 	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
 	    	
 	    	g2D.setColor(Color.white);
 	    	g2D.setFont(toolbox.getFont(Font.BOLD,45));
@@ -309,10 +404,10 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    	g2D.setFont(toolbox.getFont(Font.ITALIC,14));
 	    	g2D.drawString("Made by @pixelhypercube", 185, 310);
 	    } else if (this.gameState.equals("paused")) {
-	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
 	    	g2D.setColor(Color.BLACK);
 	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.BOLD,35));
@@ -320,13 +415,13 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
-	    	g2D.drawString("Press 'P' or 'Esc' to unpause!", 147, 280);
+	    	g2D.drawString("Press 'P' or 'Esc' to unpause!", 155, 280);
 	    } else if (this.gameState.equals("gameOver")) {
 //	    	gameover window
-	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
 	    	g2D.setColor(Color.BLACK);
 	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.setColor(Color.WHITE);
+	    	g2D.drawRect(130, 170, 345, 160);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.BOLD,40));
@@ -337,6 +432,8 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    	g2D.drawString("Score: ", 200, 280);
 	    	g2D.drawString(toolbox.renderInt(6,game.getScore()),300,280);
 //	    	g2D.drawString("High Score: "+game.getScore(), 250, 280);
+	    } else if (this.gameState.equals("help_home") || this.gameState.equals("help_game")) {
+	    	this.renderHelpDialog(g);
 	    }
 	    
 	    // render btns

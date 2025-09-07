@@ -10,6 +10,7 @@ import javax.swing.Timer;
 import components.BoardPanel;
 import components.GameStateListener;
 import components.NextTetPanel;
+import components.StatPanel;
 import utils.Direction;
 import utils.Toolbox;
 
@@ -24,12 +25,13 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	private BoardPanel boardPanel;
 //	private String boardStr;
 	private NextTetPanel nextTetPanel;
+	private StatPanel statPanel;
 	
 	private Toolbox toolbox;
 	
 	private String gameState;
 	
-	private final int nextTetPanelWidth = 100;
+	private final int nextTetPanelWidth = 100, statPanelWidth = 120, gameWidth = 600;
 	
 	Timer timer = new Timer(250,null);
 	Timer starTimer = new Timer(20,null);
@@ -53,22 +55,29 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    
 	    nextTetPanel = new NextTetPanel(game,nextTetPanelWidth,600);
 	    add(nextTetPanel);
-	    nextTetPanel.setBounds(600,0,nextTetPanelWidth,600);
+	    nextTetPanel.setBounds(statPanelWidth+gameWidth,0,nextTetPanelWidth,600);
 	    nextTetPanel.repaint();
 	    
+	    statPanel = new StatPanel(game,statPanelWidth,600,this);
+	    statPanel.setGameStateListener(this);
+	    add(statPanel);
+	    statPanel.setBounds(0,0,statPanelWidth,600);
+	    statPanel.repaint();
+	    
+	    game.setStatPanel(statPanel);
 	    game.setNextTetPanel(nextTetPanel);
 	    
 	    
 	    boardPanel = new BoardPanel(game,this.gameState);
 	    boardPanel.setGameStateListener(this);
 	    add(boardPanel);
-	    boardPanel.setBounds(0, 0, 600, 600);
+	    boardPanel.setBounds(statPanelWidth, 0, 600, 600);
 	    boardPanel.repaint();
 	   
 	    
 	    
 	    // set resolution
-	    setSize(612+nextTetPanelWidth,635);
+	    setSize(statPanelWidth+gameWidth+12+nextTetPanelWidth,635);
 		
 	    
 //	    add(gameOverLabel);
@@ -129,6 +138,16 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 			starTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
+		else if (gameState.equals("help_home")) {
+			timer.stop();
+			starTimer.stop();
+//			gameOverLabel.setVisible(true);
+		}
+		else if (gameState.equals("help_game")) {
+			timer.stop();
+			starTimer.stop();
+//			gameOverLabel.setVisible(true);
+		}
 		boardPanel.repaint();
 	}
 	
@@ -144,18 +163,24 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
-		if (this.gameState.equals("game") || this.gameState.equals("paused")) {
+		if (this.gameState.equals("game") || 
+			this.gameState.equals("paused")|| 
+			this.gameState.equals("help_game")) {
 			switch (key) {
 				case KeyEvent.VK_A:
+				case KeyEvent.VK_LEFT:
 					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.RIGHT);
 					break;
-				case KeyEvent.VK_LEFT:
+				case KeyEvent.VK_W:
+				case KeyEvent.VK_UP:
 					if (!gameState.equals("paused")) game.rotateTetromino(Direction.COUNTERCLOCKWISE);
 					break;
 				case KeyEvent.VK_D:
+				case KeyEvent.VK_RIGHT:
 					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.LEFT);
 					break;
-				case KeyEvent.VK_RIGHT:
+				case KeyEvent.VK_S:
+				case KeyEvent.VK_DOWN:
 					if (!gameState.equals("paused")) game.rotateTetromino(Direction.CLOCKWISE);
 					break;
 				case KeyEvent.VK_SPACE:
@@ -165,6 +190,12 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 				case KeyEvent.VK_ESCAPE: {
 					if (this.gameState.equals("paused")) this.toggleGameState("game");
 					else this.toggleGameState("paused");
+					break;
+				}
+				case KeyEvent.VK_H: {
+					if (this.gameState.equals("game")) this.toggleGameState("help_game");
+					else if (this.gameState.equals("help_game")) this.toggleGameState("game");
+					break;
 				}
 			}
 			

@@ -1,57 +1,59 @@
 package components;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.BasicStroke;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.Iterator;
-//import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.swing.JPanel;
 
-import java.awt.Color;
-import java.awt.Font;
-
+import main.Astertris;
 import main.GameBoard;
+import utils.BlockColor;
 import utils.Toolbox;
 
-import utils.BlockColor;
-
-public class NextTetPanel extends JPanel implements MouseListener, MouseMotionListener {
-	private static final long serialVersionUID = -9197521560180289302L;
+public class StatPanel extends JPanel implements MouseListener, MouseMotionListener {
+	private static final long serialVersionUID = -2619725640328042122L;
 	
 	private int width,height;
 	private GameBoard game;
 	private Toolbox toolbox = new Toolbox();
-	private Queue<Integer> tetIdxQueue, colorIdxQueue;
-	private int[][][] tetrominoShapes;
-	private int cellSize = 12;
-	private BlockColor[] tetColors;
-	private EnumMap<BlockColor,Color> colorsList;
-	private Graphics2D g2d;
 	
-	private GameStateListener listener;
+	private int[][][] tetrominoShapes;
+	private int cellSize = 9;
+//	private BlockColor[] tetColors;
+	private EnumMap<BlockColor,Color> colorsList;
+	
+//	private Graphics2D g2d;
 	
 	private ArrayList<GameButton> buttons;
+	
+	private GameStateListener listener;
+	private int[][] stats;
 	
 	public void setGameStateListener(GameStateListener listener) {
 		this.listener = listener;
 	}
 	
-	public NextTetPanel(GameBoard game, int width, int height) {
+	public StatPanel(GameBoard game, int width, int height, Astertris mainProg) {
 		this.setGame(game);
+		
+		this.game = game;
 		this.width = width;
 		this.height = height;
 		
-		this.tetColors = new BlockColor[]{BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
+		this.stats = game.getStats();
 		
-		this.tetIdxQueue = game.getTetIdxQueue();
-		this.colorIdxQueue = game.getColorIdxQueue();
+		
+		// TET COLORS
+		
+//		this.tetColors = new BlockColor[]{BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
+		
 		this.tetrominoShapes = toolbox.getTetrominoShapes();
 		
 		colorsList = new EnumMap<>(BlockColor.class);
@@ -69,42 +71,43 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
         
         this.buttons = new ArrayList<GameButton>();
         
-        GameButton button = new GameButton(10,500,80,80,true,16,"GITHUB\nLINK",Color.WHITE,new Color(30,30,30),Color.WHITE,"https://github.com/pixelhypercube/Astertris",null);
-        this.buttons.add(button);
+//        GameButton helpButton = new GameButton(10,540,100,40,true,16,"Help",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"help_game");
+//        this.buttons.add(helpButton);
         
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
 	}
 	
-	public void renderNextBlocks(int x, int y, Graphics g) {
-		Graphics2D g2d = (Graphics2D) g;
+	public void paintComponent(Graphics g) {
+		Graphics2D g2d = (Graphics2D)g;
 		
-		// render ids from tetIdxQueue
-		int offsetY = y;
-		int padding = 40;
+		g2d.setColor(Color.BLACK);
+		g2d.fillRect(0, 0, width, height);
 		
-		// for color tetIdxQueue
-		Iterator<Integer> colorIt = this.colorIdxQueue.iterator();
+		g2d.setColor(Color.YELLOW);
+		g2d.fillRect(width-2,0,2,height);
 		
-		int count = 0;
-		for (int idx : this.tetIdxQueue) {
-			int[][] tetromino = tetrominoShapes[idx];
-			
-			// align center
-			int tetWidth = tetromino[0].length*cellSize;
-			int offsetX = (this.width-tetWidth)/2;
-			
-			int colorIdx = colorIt.next();
-			
-			for (int i = 0;i<tetromino.length;i++) {
-				for (int j = 0;j<tetromino[0].length;j++) {
-					if (tetromino[i][j]==1) {
-						BlockColor blockColor = this.tetColors[colorIdx];
-						Color color = this.colorsList.get(blockColor);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
+		g2d.drawString("STATS",20,30);
+		
+		int offsetX = 10;
+		int offsetY = 50;
+		int padding = 30;
+		
+		int index = 0;
+		for (int[][] tetShape : this.tetrominoShapes) {
+			int n = tetShape.length, m = tetShape[0].length;
+			for (int i = 0;i<n;i++) {
+				for (int j = 0;j<m;j++) {
+					if (tetShape[i][j]==1) {
+//						BlockColor blockColor = BlockColor.ORANGE;
+//						Color color = this.colorsList.get(blockColor);
+						Color color = new Color(200,150,0);
 						Color bevelTopColor = this.toolbox.blendColors(color, Color.WHITE, 0.35);
 				        Color bevelBottomColor = this.toolbox.blendColors(color, Color.BLACK, 0.35);
-				        
-				        int drawX = offsetX+j*cellSize;
+						
+						int drawX = offsetX+j*cellSize;
 	                    int drawY = offsetY+i*cellSize;
 	                    
 	                    g2d.setColor(color);
@@ -126,55 +129,31 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 					}
 				}
 			}
-			offsetY += tetromino.length * cellSize + padding + ((count++==0) ? 20 : 0);
+			
+			g2d.setColor(Color.WHITE);
+			g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+			g2d.drawString("x "+stats[index++][1], offsetX+50, offsetY+5+cellSize*tetShape.length/2);
+			
+			offsetY += tetShape.length * cellSize + padding;
 		}
-	}
-	
-	@Override
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		g2d = (Graphics2D)g;
-		
-		g2d.setColor(Color.BLACK);
-		g2d.fillRect(0, 0, width, height);
-		g2d.setColor(Color.YELLOW);
-		g2d.fillRect(0,0,2,height);
-		
-		g2d.setColor(Color.RED);
-		g2d.setStroke(new BasicStroke(
-			3.0f,
-			BasicStroke.CAP_ROUND,
-			BasicStroke.JOIN_ROUND,
-			10.0f
-		));
-		int padding = 10;
-		g2d.drawRect(padding,padding,this.width-padding*2,this.width-padding*2+10);
-		
-		g2d.setColor(Color.WHITE);
-		g2d.setFont(toolbox.getFont(Font.PLAIN, 22));
-		g2d.drawString("NEXT", 19, 35);
-		
-		this.renderNextBlocks(30,50,g2d);
 		
 		// render buttons
 		for (GameButton button : this.buttons) {
 			button.paintComponent(g);
 		}
 	}
-
-	public GameBoard getGame() {
-		return game;
-	}
-
+	
 	public void setGame(GameBoard game) {
 		this.game = game;
 	}
-
+	
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mouseDragged(e);
+			if (button.getVisibility()) {
+				button.mouseDragged(e);
+			}
 		}
 		repaint();
 	}
@@ -183,7 +162,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseMoved(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mouseMoved(e);
+			if (button.isVisible()) {
+				button.mouseMoved(e);
+			}
 		}
 		repaint();
 	}
@@ -206,7 +187,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mousePressed(e);
+			if (button.isVisible()) {
+				button.mousePressed(e);
+			}
 		}
 		repaint();
 	}
@@ -215,7 +198,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mouseReleased(e);
+			if (button.isVisible()) {
+				button.mouseReleased(e);
+			}
 		}
 		repaint();
 	}
@@ -224,7 +209,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mouseEntered(e);
+			if (button.isVisible()) {
+				button.mouseEntered(e);
+			}
 		}
 		repaint();
 	}
@@ -233,7 +220,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
 		for (GameButton button : this.buttons) {
-			button.mouseExited(e);
+			if (button.isVisible()) {
+				button.mouseExited(e);
+			}
 		}
 		repaint();
 	}

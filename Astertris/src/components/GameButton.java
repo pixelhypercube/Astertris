@@ -28,9 +28,9 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	
 	Graphics2D g2D;
 	Toolbox toolbox = new Toolbox();
-	private boolean visible;
+	private boolean visibility;
 	
-	public GameButton(int x, int y, int w, int h, boolean visible,int fontSize, String label, Color borderColor, Color fillColor, Color textColor, String url, String nextGameState) {
+	public GameButton(int x, int y, int w, int h, boolean visibility, int fontSize, String label, Color borderColor, Color fillColor, Color textColor, String url, String nextGameState) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
@@ -44,7 +44,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 		this.currFillColor = fillColor;
 		this.url = url;
 		
-		this.visible = visible;
+		this.visibility = visibility;
 		
 		this.nextGameState = nextGameState;
 		
@@ -53,38 +53,41 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	}
 	
 	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2D = (Graphics2D)g;
-		
-		g2D.setColor(this.borderColor);
-		g2D.setStroke(new BasicStroke(
-			2.0f,
-			BasicStroke.CAP_ROUND,
-			BasicStroke.JOIN_ROUND,
-			10.0f
-		));
-		g2D.drawRect(this.x,this.y,this.w,this.h);
-		
-		g2D.setColor(this.currFillColor);
-		g2D.fillRect(this.x,this.y,this.w,this.h);
-		
-		g2D.setFont(toolbox.getFont(Font.PLAIN, this.fontSize));
-		g2D.setColor(Color.WHITE);
+		if (visibility) {
+			super.paintComponent(g);
+			Graphics2D g2D = (Graphics2D)g;
+			
+			g2D.setColor(this.currFillColor);
+			g2D.fillRect(this.x,this.y,this.w,this.h);
+			
+			g2D.setColor(this.borderColor);
+			g2D.setStroke(new BasicStroke(
+				2.0f,
+				BasicStroke.CAP_ROUND,
+				BasicStroke.JOIN_ROUND,
+				10.0f
+			));
+			g2D.drawRect(this.x,this.y,this.w,this.h);
+			
+			
+			g2D.setFont(toolbox.getFont(Font.PLAIN, this.fontSize));
+			g2D.setColor(Color.WHITE);
 
-		
-		FontMetrics fm = g2D.getFontMetrics();
-		String[] lines = this.label.split("\n");
-		int lineHeight = fm.getHeight();
+			
+			FontMetrics fm = g2D.getFontMetrics();
+			String[] lines = this.label.split("\n");
+			int lineHeight = fm.getHeight();
 
-		int totalTextHeight = lineHeight*lines.length;
-		int startY = this.y + (this.h-totalTextHeight)/2 + fm.getAscent();
+			int totalTextHeight = lineHeight*lines.length;
+			int startY = this.y + (this.h-totalTextHeight)/2 + fm.getAscent();
 
-		for (int i = 0; i < lines.length; i++) {
-		    String line = lines[i];
-		    int textWidth = fm.stringWidth(line);
-		    int textX = this.x + (this.w-textWidth)/2;
-		    int textY = startY + i*lineHeight;
-		    g2D.drawString(line, textX, textY);
+			for (int i = 0; i < lines.length; i++) {
+			    String line = lines[i];
+			    int textWidth = fm.stringWidth(line);
+			    int textX = this.x + (this.w-textWidth)/2;
+			    int textY = startY + i*lineHeight;
+			    g2D.drawString(line, textX, textY);
+			}
 		}
 	}
 	
@@ -92,19 +95,19 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 		return this.buttonBounds;
 	}
 	
-	public boolean getVisible() {
-		return this.visible;
+	public boolean getVisibility() {
+		return visibility;
 	}
 	
-	public void setVisible(boolean visible) {
-		this.visible = visible;
+	public void setVisibility(boolean visibility) {
+		this.visibility = visibility;
 	}
 	
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
-		if (this.visible && this.buttonBounds.contains(e.getPoint())) {
+		if (this.visibility && this.buttonBounds.contains(e.getPoint())) {
 			this.currFillColor = toolbox.blendColors(this.fillColor, Color.BLACK, 0.25);
 			repaint();
 			if (this.url!=null) {
@@ -127,7 +130,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-	    if (this.visible && this.buttonBounds.contains(e.getPoint())) {
+	    if (this.visibility && this.buttonBounds.contains(e.getPoint())) {
 	        this.currFillColor = toolbox.blendColors(this.fillColor, Color.BLACK, 0.25);
 	        repaint();
 	    }
@@ -135,7 +138,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-	    if (this.visible) {
+	    if (this.visibility) {
 	        this.currFillColor = this.fillColor;
 	        repaint();
 	    }
@@ -143,7 +146,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-	    if (this.visible && this.buttonBounds.contains(e.getPoint())) {
+	    if (this.visibility && this.buttonBounds.contains(e.getPoint())) {
 	        this.currFillColor = toolbox.blendColors(this.fillColor, Color.WHITE, 0.25);
 	        repaint();
 	    }
@@ -151,7 +154,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-	    if (this.visible) {
+	    if (this.visibility) {
 	        // Always reset when leaving
 	        this.currFillColor = this.fillColor;
 	        repaint();
@@ -160,7 +163,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-	    if (this.visible) {
+	    if (this.visibility) {
 	        if (this.buttonBounds.contains(e.getPoint())) {
 	            this.currFillColor = toolbox.blendColors(this.fillColor, Color.BLACK, 0.25);
 	        } else {
@@ -172,7 +175,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-	    if (this.visible) {
+	    if (this.visibility) {
 	        if (this.buttonBounds.contains(e.getPoint())) {
 	            this.currFillColor = toolbox.blendColors(this.fillColor, Color.WHITE, 0.25);
 	        } else {
