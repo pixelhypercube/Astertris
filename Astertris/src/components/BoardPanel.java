@@ -370,10 +370,10 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 //	    }
 	    // LABELS
 	    
-	    // score
-    	g2D.setColor(Color.white);
-    	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
-    	g2D.drawString("Score: "+toolbox.renderInt(6,game.getScore()), 10, 30);
+//	    // score (PUT IN STATS PANEL)
+//    	g2D.setColor(Color.white);
+//    	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
+//    	g2D.drawString("Score: "+toolbox.renderInt(6,game.getScore()), 10, 30);
     	
     	// H for Help!
     	g2D.setColor(Color.white);

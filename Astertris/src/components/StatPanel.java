@@ -25,7 +25,7 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 	private Toolbox toolbox = new Toolbox();
 	
 	private int[][][] tetrominoShapes;
-	private int cellSize = 9;
+	private int cellSize = 12;
 //	private BlockColor[] tetColors;
 	private EnumMap<BlockColor,Color> colorsList;
 	
@@ -89,13 +89,14 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 		
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("STATS",20,30);
+		g2d.drawString("STATISTICS",10,25);
 		
-		int offsetX = 10;
+		int offsetX = 30;
 		int offsetY = 50;
 		int padding = 30;
 		
 		int index = 0;
+//		 TET SHAPES RENDERING
 		for (int[][] tetShape : this.tetrominoShapes) {
 			int n = tetShape.length, m = tetShape[0].length;
 			for (int i = 0;i<n;i++) {
@@ -130,13 +131,25 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 				}
 			}
 			
-			g2d.setColor(Color.WHITE);
-			g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
-			g2d.drawString("x "+stats[index++][1], offsetX+50, offsetY+5+cellSize*tetShape.length/2);
+			g2d.setColor(new Color(150,75,20));
+			g2d.setFont(toolbox.getFont(Font.PLAIN, 22));
+			g2d.drawString(""+stats[index++][1], offsetX+70, offsetY+10+cellSize*tetShape.length/2);
 			
 			offsetY += tetShape.length * cellSize + padding;
 		}
 		
+//		// score
+//    	g2d.setColor(Color.white);
+//    	g2d.setFont(toolbox.getFont(Font.PLAIN,18));
+//    	g2d.drawString("Score", 10, 500);
+//    	g2d.drawString(toolbox.renderInt(6,game.getScore()), 10, 520);
+//    	
+//    	// lines cleared
+//    	g2d.setColor(Color.white);
+//    	g2d.setFont(toolbox.getFont(Font.PLAIN,18));
+//    	g2d.drawString("Lines", 10, 550);
+//    	g2d.drawString(toolbox.renderInt(6,game.getLinesCleared()), 10, 570);
+//		
 		// render buttons
 		for (GameButton button : this.buttons) {
 			button.paintComponent(g);

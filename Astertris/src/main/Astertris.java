@@ -11,6 +11,7 @@ import components.BoardPanel;
 import components.GameStateListener;
 import components.NextTetPanel;
 import components.StatPanel;
+import components.TopPanel;
 import utils.Direction;
 import utils.Toolbox;
 
@@ -27,13 +28,16 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	private NextTetPanel nextTetPanel;
 	private StatPanel statPanel;
 	
+	private TopPanel topPanel;
+	
 	private Toolbox toolbox;
 	
 	private String gameState;
 	
-	private final int nextTetPanelWidth = 100, statPanelWidth = 120, gameWidth = 600;
+	private final int nextTetPanelWidth = 150, statPanelWidth = 165, gameWidth = 600;
+	private final int topPanelHeight = 40;
 	
-	Timer timer = new Timer(250,null);
+	Timer timer = new Timer(500,null);
 	Timer starTimer = new Timer(20,null);
 	
 	public Astertris() {
@@ -53,15 +57,22 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 		// init game
 	    game = new GameBoard(WIDTH,HEIGHT,PLANET_SIZE,0);
 	    
-	    nextTetPanel = new NextTetPanel(game,nextTetPanelWidth,600);
+	    // top panel
+	    topPanel = new TopPanel(game,gameWidth,topPanelHeight);
+	    add(topPanel);
+	    topPanel.setBounds(statPanelWidth,0,gameWidth,50);
+	    topPanel.repaint();
+	    
+	    
+	    nextTetPanel = new NextTetPanel(game,nextTetPanelWidth,600+topPanelHeight);
 	    add(nextTetPanel);
-	    nextTetPanel.setBounds(statPanelWidth+gameWidth,0,nextTetPanelWidth,600);
+	    nextTetPanel.setBounds(statPanelWidth+gameWidth,0,nextTetPanelWidth,600+topPanelHeight);
 	    nextTetPanel.repaint();
 	    
-	    statPanel = new StatPanel(game,statPanelWidth,600,this);
+	    statPanel = new StatPanel(game,statPanelWidth,600+topPanelHeight,this);
 	    statPanel.setGameStateListener(this);
 	    add(statPanel);
-	    statPanel.setBounds(0,0,statPanelWidth,600);
+	    statPanel.setBounds(0,0,statPanelWidth,600+topPanelHeight);
 	    statPanel.repaint();
 	    
 	    game.setStatPanel(statPanel);
@@ -71,13 +82,13 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    boardPanel = new BoardPanel(game,this.gameState);
 	    boardPanel.setGameStateListener(this);
 	    add(boardPanel);
-	    boardPanel.setBounds(statPanelWidth, 0, 600, 600);
+	    boardPanel.setBounds(statPanelWidth, topPanelHeight, 600, 600);
 	    boardPanel.repaint();
 	   
 	    
 	    
 	    // set resolution
-	    setSize(statPanelWidth+gameWidth+12+nextTetPanelWidth,635);
+	    setSize(statPanelWidth+gameWidth+12+nextTetPanelWidth,635+topPanelHeight);
 		
 	    
 //	    add(gameOverLabel);
@@ -88,6 +99,7 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    timer.addActionListener(e -> {
 	    	game.updateTetromino();
 	    	this.updateBoard();
+	    	this.updateTimerDelay();
 	    	
 	    	// generate stars
 	    	if (Math.random()<0.5) {
@@ -107,6 +119,19 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    	boardPanel.updateStars();
 	    	boardPanel.repaint();
 	    });
+	}
+	
+	// helper function to set the timer delay
+	public void updateTimerDelay() {
+		int linesCleared = game.getLinesCleared();
+		
+		int baseDelay = 500;
+		int minimumDelay = 100;
+		int newDelay = Math.max(minimumDelay,baseDelay - ((int)linesCleared/10 * 50));
+		
+		if (timer.getDelay() != newDelay) {
+			timer.setDelay(newDelay);
+		}
 	}
 	
 	@Override

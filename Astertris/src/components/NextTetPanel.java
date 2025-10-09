@@ -5,7 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.awt.BasicStroke;
+//import java.awt.BasicStroke;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -69,7 +69,8 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
         
         this.buttons = new ArrayList<GameButton>();
         
-        GameButton button = new GameButton(10,500,80,80,true,16,"GITHUB\nLINK",Color.WHITE,new Color(30,30,30),Color.WHITE,"https://github.com/pixelhypercube/Astertris",null);
+        int btnPadding = 10;
+        GameButton button = new GameButton(btnPadding,550,width-btnPadding*2,80,true,16,"GITHUB\nLINK",Color.WHITE,new Color(30,30,30),Color.WHITE,"https://github.com/pixelhypercube/Astertris",null);
         this.buttons.add(button);
         
         this.addMouseListener(this);
@@ -81,7 +82,7 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		// render ids from tetIdxQueue
 		int offsetY = y;
-		int padding = 40;
+		int padding = 30;
 		
 		// for color tetIdxQueue
 		Iterator<Integer> colorIt = this.colorIdxQueue.iterator();
@@ -140,21 +141,36 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 		g2d.setColor(Color.YELLOW);
 		g2d.fillRect(0,0,2,height);
 		
-		g2d.setColor(Color.RED);
-		g2d.setStroke(new BasicStroke(
-			3.0f,
-			BasicStroke.CAP_ROUND,
-			BasicStroke.JOIN_ROUND,
-			10.0f
-		));
-		int padding = 10;
-		g2d.drawRect(padding,padding,this.width-padding*2,this.width-padding*2+10);
+//		g2d.setColor(Color.RED);
+//		g2d.setStroke(new BasicStroke(
+//			2.0f,
+//			BasicStroke.CAP_ROUND,
+//			BasicStroke.JOIN_ROUND,
+//			10.0f
+//		));
+		
+		g2d.setColor(Color.YELLOW);
+		g2d.fillRect(0,38,width,2);
+		
+		// LEVEL
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
+		g2d.drawString("LEVEL: "+(1+(game.getLinesCleared()/10)), 10, 25);
+//		g2d.drawString(""+(1+(game.getLinesCleared()/10)), 43, 50);
+		
+		
+//		int padding = 30;
+//		g2d.setColor(Color.RED);
+//		g2d.drawRect(padding,50,this.width-padding*2,this.width-padding*2+10);
 		
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 22));
-		g2d.drawString("NEXT", 19, 35);
+		g2d.drawString("NEXT", 43, 70);
 		
-		this.renderNextBlocks(30,50,g2d);
+		g2d.setColor(Color.YELLOW);
+		g2d.fillRect(0,130,width,2);
+		
+		this.renderNextBlocks(30,90,g2d);
 		
 		// render buttons
 		for (GameButton button : this.buttons) {

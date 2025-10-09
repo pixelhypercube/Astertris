@@ -21,6 +21,8 @@ public class GameBoard {
 	private int width, height, planetSize;
 	private int borderWidth;
 	
+	private int linesCleared;
+	
 	private ArrayList<ArrayList<Block>> board;
 	
 	private Tetromino currTetromino;
@@ -50,6 +52,8 @@ public class GameBoard {
 		this.planetSize = planetSize;
 		this.cx = width/2;
 		this.cy = height/2;
+		
+		this.linesCleared = 0;
 		
 		this.tetColors = new BlockColor[]{BlockColor.RED,BlockColor.ORANGE,BlockColor.YELLOW,BlockColor.GREEN,BlockColor.AQUA,BlockColor.BLUE,BlockColor.PURPLE};
 		this.setCurrTetColor(tetColors[random.nextInt(tetColors.length)]);
@@ -120,6 +124,14 @@ public class GameBoard {
 				this.board.get(i).add(new Block(state));
 			}
 		}
+	}
+	
+	public int getLinesCleared() {
+		return linesCleared;
+	}
+	
+	public void setLinesCleared(int linesCleared) {
+		this.linesCleared = linesCleared;
 	}
 	
 	public void setStatPanel(StatPanel statPanel) {
@@ -337,6 +349,7 @@ public class GameBoard {
 	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][0] = null;
 
 	            this.score += 100;
+	            this.linesCleared++;
 	            i++; // recheck this row
 	        }
 	    }
@@ -363,6 +376,7 @@ public class GameBoard {
 	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][this.placedBlocks[0].length - 1] = null;
 
 	            this.score += 100;
+	            this.linesCleared++;
 	            i--; // recheck this row
 	        }
 	    }
@@ -389,6 +403,7 @@ public class GameBoard {
 	            for (int i = startY; i <= endY; i++) this.placedBlocks[0][i] = null;
 
 	            this.score += 100;
+	            this.linesCleared++;
 	            j++; // recheck this column
 	        }
 	    }
@@ -415,6 +430,7 @@ public class GameBoard {
 	            for (int i = startY; i <= endY; i++) this.placedBlocks[this.placedBlocks.length - 1][i] = null;
 
 	            this.score += 100;
+	            this.linesCleared++;
 	            j--; // recheck this column
 	        }
 	    }
