@@ -1,3 +1,5 @@
+<img src="Astertris/src/assets/img/logo_color768px.png"/>
+
 # Astertris (Beta)
 
 **Astertris** is a custom Java implementation of Tetris with a unique twist — radial gravity mechanics set in space!  
