@@ -26,7 +26,7 @@ Some features are not fully implemented yet.
 ---
 
 ## Download
-[Latest Version (Beta 1.4.1)](https://github.com/pixelhypercube/Astertris/releases/tag/beta-1.4.1)
+[Latest Version (Beta 1.4.2)](https://github.com/pixelhypercube/Astertris/releases/tag/beta-1.4.2)
 
 ---
 
