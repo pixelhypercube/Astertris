@@ -88,7 +88,7 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.fillRect(0,38,width,2);
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("BETA 1.4.1",8,25);
+		g2d.drawString("BETA 1.4.2",8,25);
 		
 		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(width-2,0,2,height);
