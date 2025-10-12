@@ -130,6 +130,10 @@ public class GameBoard {
 		return linesCleared;
 	}
 	
+	public int getLevel() {
+		return 1 + ((int)linesCleared/10);
+	}
+	
 	public void setLinesCleared(int linesCleared) {
 		this.linesCleared = linesCleared;
 	}
@@ -157,7 +161,6 @@ public class GameBoard {
 			this.colorIdxQueue.add(random.nextInt(tetColors.length));
 		}
 		this.genNewTetromino(this.tetIdxQueue.remove(), this.tetColors[this.colorIdxQueue.remove()]);
-		
 	}
 	
 	public BlockState getCellBlockState(int x, int y) {
@@ -348,7 +351,7 @@ public class GameBoard {
 	            // clear top row
 	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][0] = null;
 
-	            this.score += 100;
+	            this.score += 100*this.getLevel();
 	            this.linesCleared++;
 	            i++; // recheck this row
 	        }

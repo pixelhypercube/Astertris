@@ -14,6 +14,7 @@ import java.util.HashMap;
 import javax.swing.JPanel;
 
 import decorations.Star;
+import decorations.Asteroid;
 import main.GameBoard;
 import utils.BlockColor;
 import utils.BlockState;
@@ -35,6 +36,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	private EnumMap<BlockColor,Color> colorsList;
 	
 	private ArrayList<Star> stars;
+	private ArrayList<Asteroid> asteroids;
 	
 	private Graphics2D g2D;
 	
@@ -48,10 +50,13 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 		this.listener = listener;
 	}
 	
+	private GameButton restartBtn;
+	
 	public BoardPanel(GameBoard game, String gameState) {
 		this.game = game;
 		this.gameState = gameState;
 		this.stars = new ArrayList<Star>();
+		this.asteroids = new ArrayList<Asteroid>();
 		setPreferredSize(new Dimension(
 			game.getWidth()*cellSize,
 			game.getHeight()*cellSize
@@ -73,9 +78,9 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap = new HashMap<String, ArrayList<GameButton>>();
         
         this.buttonsHashMap.put("home", new ArrayList<>());
-        GameButton startBtn = new GameButton(130,350,150,75,true,24,"START",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        GameButton startBtn = new GameButton(130,370,150,75,true,24,"START",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("home").add(startBtn);
-        GameButton helpBtn = new GameButton(325,350,150,75,true,24,"HELP",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"help_home");
+        GameButton helpBtn = new GameButton(325,370,150,75,true,24,"HELP",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"help_home");
         this.buttonsHashMap.get("home").add(helpBtn);
         
         this.buttonsHashMap.put("paused", new ArrayList<>());
@@ -83,7 +88,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap.get("paused").add(resumeBtn);
         
         this.buttonsHashMap.put("gameOver", new ArrayList<>());
-        GameButton restartBtn = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        restartBtn = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("gameOver").add(restartBtn);
         
         this.buttonsHashMap.put("help_home", new ArrayList<>());
@@ -98,15 +103,35 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.addMouseMotionListener(this);
 	}
 	
-	// nearer stars are bigger and travel faster
+	// nearer stars appear larger and travel faster
 	public void generateStar(int size, Color color) {
 		int width = game.getWidth()*this.cellSize, height = game.getHeight()*this.cellSize;
 		this.stars.add(new Star(width,(int)Math.round(Math.random()*height),size,size,-size*0.25,0,color));
 	}
 	
+	// nearer asteroids appear larger and travel faster
+	public void generateAsteroid(int size) {
+		int width = game.getWidth()*this.cellSize, height = game.getHeight()*this.cellSize;
+		this.asteroids.add(new Asteroid(width,(int)Math.round(Math.random()*height),size,size,-size*0.1,(double)(Math.random()*0.5-0.25),(int)Math.floor(Math.random()*4+1),Math.random()*0.1-0.05));
+	}
+	
 	public void updateStars() {
 		stars.forEach(Star::update);
 	    stars.removeIf(star->star.getX()<=0);
+	}
+	
+	public void updateAsteroids() {
+		asteroids.forEach(Asteroid::update);
+		
+		final int screenWidth = game.getWidth()*this.cellSize;
+		final int screenHeight = game.getHeight()*this.cellSize;
+		
+		asteroids.removeIf(asteroid -> 
+			(asteroid.getX() + asteroid.getW() <= 0) ||
+	        (asteroid.getX() >= screenWidth) ||
+	        (asteroid.getY() + asteroid.getH() <= 0) ||
+	        (asteroid.getY() >= screenHeight)
+		);
 	}
 
 	public void setGameState(String gameState) {
@@ -158,6 +183,9 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 					button.mouseClicked(e);
 					if (button.getNextGameState()!=null && listener != null) {
 						listener.onGameStateChange(button.getNextGameState());
+					}
+					if (button.equals(restartBtn)) {
+						game.restartGame();
 					}
 				}
 			}
@@ -296,7 +324,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	
 //	@Override
 	public void paint(Graphics g) {
-//		super.paintComponent(g);
+		super.paintComponent(g);
 		g2D = (Graphics2D)g;
 		
 		g2D.setColor(Color.BLACK);
@@ -307,7 +335,12 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    
 	    // stars
 	    for (Star star : stars) {
-	    	star.render(g);
+	    	star.render(g2D);
+	    }
+	    
+	    // asteroids
+	    for (Asteroid asteroid : asteroids) {
+	    	asteroid.render(g2D);
 	    }
 		
 	    // blocks
@@ -376,9 +409,9 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 //    	g2D.drawString("Score: "+toolbox.renderInt(6,game.getScore()), 10, 30);
     	
     	// H for Help!
-    	g2D.setColor(Color.white);
-    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
-    	g2D.drawString("Press 'H' for help!", 10, 585);
+//    	g2D.setColor(Color.white);
+//    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
+//    	g2D.drawString("Press 'H' for help!", 10, 585);
 	    
     	g2D.setStroke(new BasicStroke(
 	    	2.0f,
@@ -388,21 +421,24 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    ));
 	    if (this.gameState.equals("home")) {
 	    	g2D.setColor(Color.BLACK);
-	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.fillRect(90, 130, 425, 220);
 	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.drawRect(90, 130, 425, 220);
 	    	
-	    	g2D.setColor(Color.white);
-	    	g2D.setFont(toolbox.getFont(Font.BOLD,45));
-	    	g2D.drawString("Astertris", 150, 240);
 	    	
-	    	g2D.setColor(Color.white);
-	    	g2D.setFont(toolbox.getFont(Font.PLAIN,16));
-	    	g2D.drawString("Tetris, but on an asteroid!", 145, 270);
+//	    	g2D.setColor(Color.white);
+//	    	g2D.setFont(toolbox.getFont(Font.BOLD,45));
+//	    	g2D.drawString("Astertris", 150, 240);
+//	    	
+//	    	g2D.setColor(Color.white);
+//	    	g2D.setFont(toolbox.getFont(Font.PLAIN,16));
+//	    	g2D.drawString("Tetris, but on an asteroid!", 145, 270);
 	    	
-	    	g2D.setColor(Color.WHITE);
-	    	g2D.setFont(toolbox.getFont(Font.ITALIC,14));
-	    	g2D.drawString("Made by @pixelhypercube", 185, 310);
+	    	g2D.drawImage(toolbox.getImage("logo_color.png"), 110, 150, 384, 192, this);
+	    	
+//	    	g2D.setColor(Color.WHITE);
+//	    	g2D.setFont(toolbox.getFont(Font.ITALIC,14));
+//	    	g2D.drawString("Made by @pixelhypercube", 185, 310);
 	    } else if (this.gameState.equals("paused")) {
 	    	g2D.setColor(Color.BLACK);
 	    	g2D.fillRect(130, 170, 345, 160);

@@ -84,15 +84,21 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(0, 0, width, height);
 		
-		g2d.setColor(Color.YELLOW);
+		g2d.setColor(new Color(127,127,127));
+		g2d.fillRect(0,38,width,2);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
+		g2d.drawString("BETA 1.4.1",8,25);
+		
+		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(width-2,0,2,height);
 		
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("STATISTICS",10,25);
+		g2d.drawString("STATISTICS",8,65);
 		
 		int offsetX = 30;
-		int offsetY = 50;
+		int offsetY = 88;
 		int padding = 30;
 		
 		int index = 0;
@@ -137,6 +143,17 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 			
 			offsetY += tetShape.length * cellSize + padding;
 		}
+		
+		
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 16));
+		g2d.drawString("CONTROLS:",8,580);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("H - HELP",8,600);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("ESC/P - PAUSE",8,620);
 		
 //		// score
 //    	g2d.setColor(Color.white);

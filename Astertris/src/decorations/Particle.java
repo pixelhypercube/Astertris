@@ -3,11 +3,11 @@ package decorations;
 import java.awt.Color;
 
 public class Particle {
-	int x,y,w,h;
-	double vx,vy;
+	int w,h;
+	double x,y,vx,vy;
 	Color color;
 	
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 
@@ -15,7 +15,7 @@ public class Particle {
 		this.x = x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 
@@ -73,6 +73,16 @@ public class Particle {
 		this.color = color;
 	}
 	
+	public Particle(int x, int y, int w, int h, double vx, double vy) {
+		// TODO Auto-generated constructor stub
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.vx = vx;
+		this.vy = vy;
+	}
+
 	public void update() {
 		this.x += this.vx;
 		this.y += this.vy;

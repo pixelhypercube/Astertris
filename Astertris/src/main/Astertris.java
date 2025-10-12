@@ -3,6 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.Timer;
@@ -39,6 +41,10 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	
 	Timer timer = new Timer(500,null);
 	Timer starTimer = new Timer(20,null);
+	Timer asteroidTimer = new Timer(30,null);
+	
+	// list of active keys
+	private Set<Integer> activeKeys = new HashSet<>();
 	
 	public Astertris() {
 		this.gameState = "home";
@@ -101,22 +107,30 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    	this.updateBoard();
 	    	this.updateTimerDelay();
 	    	
-	    	// generate stars
+	    	// generate stars / asteroids
 	    	if (Math.random()<0.5) {
-	    		int size = (int)(Math.random()*5)+2;
+    			int size = (int)(Math.random()*5)+2;
 	    		int hue  = (int)(Math.random()*40+20);
 	    		int lum = (int)(Math.random()*50+40);
 	    		Color starColor = toolbox.getColorFromHSL(hue,100,lum);
 	    		hue = (int)(Math.random()*40+150);
 	    		if (Math.random()<0.2) starColor = toolbox.getColorFromHSL(hue, size, lum);
 	    		this.boardPanel.generateStar(size,starColor);
-	    	}
+    		}
+	    	if (Math.random()<0.01) {
+    			this.boardPanel.generateAsteroid(12);
+    		}
 	    	
 	    	if (game.getGameOver()) this.toggleGameState("gameOver");
 	    });
 	    
 	    starTimer.addActionListener(e -> {
 	    	boardPanel.updateStars();
+	    	boardPanel.repaint();
+	    });
+	    
+	    asteroidTimer.addActionListener(e -> {
+	    	boardPanel.updateAsteroids();
 	    	boardPanel.repaint();
 	    });
 	}
@@ -146,31 +160,37 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 //			pausedLabel.setText("Press 'P' or 'Esc' to pause!");
 			timer.start();
 			starTimer.start();
+			asteroidTimer.start();
 			
 //			gameOverLabel.setVisible(false);
 		} 
 		else if (gameState.equals("home")) {
 			timer.stop();
 			starTimer.stop();
+			asteroidTimer.stop();
 		}
 		else if (gameState.equals("paused")) {
 //			pausedLabel.setText("Press 'P' or 'Esc' to unpause!");
 			timer.stop();
 			starTimer.stop();
+			asteroidTimer.stop();
 		}
 		else if (gameState.equals("gameOver")) {
 			timer.stop();
 			starTimer.stop();
+			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
 		else if (gameState.equals("help_home")) {
 			timer.stop();
 			starTimer.stop();
+			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
 		else if (gameState.equals("help_game")) {
 			timer.stop();
 			starTimer.stop();
+			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
 		boardPanel.repaint();
@@ -186,58 +206,53 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 //    	scoreLabel.setText("Score: " + game.getScore());
 	}
 	
-	public void keyPressed(KeyEvent e) {
-		int key = e.getKeyCode();
-		if (this.gameState.equals("game") || 
-			this.gameState.equals("paused")|| 
-			this.gameState.equals("help_game")) {
-			switch (key) {
-				case KeyEvent.VK_A:
-				case KeyEvent.VK_LEFT:
-					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.RIGHT);
-					break;
-				case KeyEvent.VK_W:
-				case KeyEvent.VK_UP:
-					if (!gameState.equals("paused")) game.rotateTetromino(Direction.COUNTERCLOCKWISE);
-					break;
-				case KeyEvent.VK_D:
-				case KeyEvent.VK_RIGHT:
-					if (!gameState.equals("paused")) game.moveCurrTetromino(Direction.LEFT);
-					break;
-				case KeyEvent.VK_S:
-				case KeyEvent.VK_DOWN:
-					if (!gameState.equals("paused")) game.rotateTetromino(Direction.CLOCKWISE);
-					break;
-				case KeyEvent.VK_SPACE:
-					if (!gameState.equals("paused")) game.updateTetromino();
-					break;
-				case KeyEvent.VK_P:
-				case KeyEvent.VK_ESCAPE: {
-					if (this.gameState.equals("paused")) this.toggleGameState("game");
-					else this.toggleGameState("paused");
-					break;
-				}
-				case KeyEvent.VK_H: {
-					if (this.gameState.equals("game")) this.toggleGameState("help_game");
-					else if (this.gameState.equals("help_game")) this.toggleGameState("game");
-					break;
-				}
-			}
-			
-			this.updateBoard();
-		} else if (this.gameState.equals("home")) {
-			if (key==KeyEvent.VK_ENTER) {
-				this.toggleGameState("game");
-			}
-		} else if (this.gameState.equals("gameOver")) {
-			if (key==KeyEvent.VK_R) {
-				game.restartGame();
-				this.toggleGameState("game");
-			}
+	public void handleMultipleInputs() {
+		if (!this.gameState.equals("game")) return;
+		
+		// Rotation (W/UP, S/DOWN)
+		if (activeKeys.contains(KeyEvent.VK_W) || activeKeys.contains(KeyEvent.VK_UP)) {
+			game.rotateTetromino(Direction.COUNTERCLOCKWISE);
 		}
+		
+		if (activeKeys.contains(KeyEvent.VK_S) || activeKeys.contains(KeyEvent.VK_DOWN)) {
+	        game.rotateTetromino(Direction.CLOCKWISE);
+	    }
+		
+		// Movement (A/LEFT, D/RIGHT)
+		
+		if (activeKeys.contains(KeyEvent.VK_A) || activeKeys.contains(KeyEvent.VK_LEFT)) {
+	        game.moveCurrTetromino(Direction.RIGHT);
+	    }
+	    
+	    if (activeKeys.contains(KeyEvent.VK_D) || activeKeys.contains(KeyEvent.VK_RIGHT)) {
+	        game.moveCurrTetromino(Direction.LEFT);
+	    }
+	    
+	    // Fast drop
+	    if (activeKeys.contains(KeyEvent.VK_SPACE)) {
+	        game.updateTetromino(); // Trigger a quick drop
+	    }
+	    
+	    this.updateBoard(); 
 	}
 	
-	public void keyReleased(KeyEvent e) {}
+	public void keyPressed(KeyEvent e) {
+		activeKeys.add(e.getKeyCode());
+		
+		int key = e.getKeyCode();
+		
+		// handle state transitions
+		if (key == KeyEvent.VK_P || key == KeyEvent.VK_ESCAPE) {
+	        if (this.gameState.equals("paused")) this.toggleGameState("game");
+	        else if (this.gameState.equals("game")) this.toggleGameState("paused");
+	    } 
+		
+		this.handleMultipleInputs();
+	}
+	
+	public void keyReleased(KeyEvent e) {
+		activeKeys.remove(e.getKeyCode());
+	}
 	
 	public void keyTyped(KeyEvent e) {}
 	

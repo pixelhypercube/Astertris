@@ -29,6 +29,8 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	Graphics2D g2D;
 	Toolbox toolbox = new Toolbox();
 	private boolean visibility;
+	private boolean willRestartGame;
+	private boolean isPressed;
 	
 	public GameButton(int x, int y, int w, int h, boolean visibility, int fontSize, String label, Color borderColor, Color fillColor, Color textColor, String url, String nextGameState) {
 		this.x = x;
@@ -47,6 +49,34 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 		this.visibility = visibility;
 		
 		this.nextGameState = nextGameState;
+		
+		this.isPressed = false;
+		
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
+	}
+	
+	public GameButton(int x, int y, int w, int h, boolean visibility, int fontSize, String label, Color borderColor, Color fillColor, Color textColor, String url, String nextGameState, boolean willRestartGame) {
+		this.x = x;
+		this.y = y;
+		this.w = w;
+		this.h = h;
+		this.fontSize = fontSize;
+		this.buttonBounds = new Rectangle(x,y,w,h);
+		this.label = label;
+		this.borderColor = borderColor;
+		this.fillColor = fillColor;
+		
+		this.currFillColor = fillColor;
+		this.url = url;
+		
+		this.visibility = visibility;
+		
+		this.nextGameState = nextGameState;
+		
+		this.isPressed = false;
+		
+		this.setWillRestartGame(willRestartGame);
 		
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
@@ -132,6 +162,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	public void mousePressed(MouseEvent e) {
 	    if (this.visibility && this.buttonBounds.contains(e.getPoint())) {
 	        this.currFillColor = toolbox.blendColors(this.fillColor, Color.BLACK, 0.25);
+	        this.isPressed = true;
 	        repaint();
 	    }
 	}
@@ -140,6 +171,7 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	public void mouseReleased(MouseEvent e) {
 	    if (this.visibility) {
 	        this.currFillColor = this.fillColor;
+	        this.isPressed = false;
 	        repaint();
 	    }
 	}
@@ -183,6 +215,14 @@ public class GameButton extends JPanel implements MouseListener, MouseMotionList
 	        }
 	        repaint();
 	    }
+	}
+
+	public boolean isWillRestartGame() {
+		return willRestartGame;
+	}
+
+	public void setWillRestartGame(boolean willRestartGame) {
+		this.willRestartGame = willRestartGame;
 	}
 	
 }

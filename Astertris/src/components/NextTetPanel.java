@@ -138,7 +138,7 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 		
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(0, 0, width, height);
-		g2d.setColor(Color.YELLOW);
+		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(0,0,2,height);
 		
 //		g2d.setColor(Color.RED);
@@ -149,7 +149,7 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 //			10.0f
 //		));
 		
-		g2d.setColor(Color.YELLOW);
+		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(0,38,width,2);
 		
 		// LEVEL
@@ -167,8 +167,8 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 22));
 		g2d.drawString("NEXT", 43, 70);
 		
-		g2d.setColor(Color.YELLOW);
-		g2d.fillRect(0,130,width,2);
+		g2d.setColor(new Color(127,127,127));
+		g2d.fillRect(0,140,width,2);
 		
 		this.renderNextBlocks(30,90,g2d);
 		

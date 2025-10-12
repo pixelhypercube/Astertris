@@ -3,12 +3,17 @@ package utils;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.imageio.ImageIO;
 
 public class Toolbox {
 	
 	private final String CUSTOM_FONT_PATH = "/assets/fonts/Pixel_Emulator.otf";
+	private final String IMAGE_DIR = "/assets/img/";
 	private final int[][][] tetrominoShapes = {
 			// O
 			{
@@ -109,6 +114,25 @@ public class Toolbox {
 		return customFont;
 	}
 	
+	public BufferedImage getImage(String path) {
+		BufferedImage myImage = null;
+		
+		String resourcePath = IMAGE_DIR + path;
+		
+		try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+			if (is != null) {
+				myImage = ImageIO.read(is);
+			} else {
+				System.err.println("Resource not found in classpath: " + resourcePath);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error loading image: " + resourcePath);
+			e.printStackTrace();
+		}
+		return myImage;
+	}
+	
 	public Color getColorFromHSL(int h, int s, int l) {
 		float sat = s/100f;
 		float light = l/100f;
@@ -130,5 +154,4 @@ public class Toolbox {
 		}
 		return new Color(clamp(r),clamp(g),clamp(b));
 	}
-	
 }

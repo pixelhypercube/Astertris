@@ -33,7 +33,7 @@ public class TopPanel extends JPanel implements MouseListener, MouseMotionListen
 		g2d.setColor(Color.BLACK);
 		g2d.fillRect(0, 0, width, height);
 		
-		g2d.setColor(Color.YELLOW);
+		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(0,height-2,width,2);
 		
 		g2d.setColor(Color.WHITE);
