@@ -13,6 +13,7 @@ import java.util.Queue;
 
 import components.NextTetPanel;
 import components.StatPanel;
+import components.TopPanel;
 
 import java.util.LinkedList;
 
@@ -42,6 +43,7 @@ public class GameBoard {
 	
 	private NextTetPanel nextTetPanel;
 	private StatPanel statPanel;
+	private TopPanel topPanel;
 	
 	private int[][] stats;
 	private Toolbox toolbox = new Toolbox();
@@ -147,6 +149,17 @@ public class GameBoard {
 	}
 	
 	public void restartGame() {
+		// reset scores & stats
+		this.score = 0;
+		this.linesCleared = 0;
+		for (int i = 0;i<this.stats.length;i++) {
+			this.stats[i][0] = i;
+			this.stats[i][1] = 0;
+		}
+		// repaint stats board
+		if (statPanel!=null) this.statPanel.repaint();
+		if (topPanel!=null) this.topPanel.repaint();
+		
 		this.gameOver = false;
 		this.placedBlocks = new BlockColor[height][width];
 		this.tetIdxQueue.clear();
@@ -437,6 +450,8 @@ public class GameBoard {
 	            j--; // recheck this column
 	        }
 	    }
+	    
+	    // update topPanel
 	}
 	
 //	GAME OVERRR METHOD

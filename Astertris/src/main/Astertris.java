@@ -203,7 +203,7 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	
 	public void updateBoard() {
 		game.updateBoard();
-//    	scoreLabel.setText("Score: " + game.getScore());
+		if (topPanel!=null) this.topPanel.repaint();
 	}
 	
 	public void handleMultipleInputs() {
