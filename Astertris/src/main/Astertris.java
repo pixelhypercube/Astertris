@@ -57,6 +57,7 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 		setLayout(null);
 		setVisible(true);
 		setResizable(false);
+		setIconImage(toolbox.getImage("icon.png"));
 		
 //		components
 		
