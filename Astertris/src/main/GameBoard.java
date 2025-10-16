@@ -48,12 +48,15 @@ public class GameBoard {
 	private int[][] stats;
 	private Toolbox toolbox = new Toolbox();
 	
-	public GameBoard(int width, int height, int planetSize, int score) {
+	private int cellSize;
+	
+	public GameBoard(int width, int height, int planetSize, int score, int cellSize) {
 		this.width = width;
 		this.height = height;
 		this.planetSize = planetSize;
 		this.cx = width/2;
 		this.cy = height/2;
+		this.setCellSize(cellSize);
 		
 		this.linesCleared = 0;
 		
@@ -340,6 +343,8 @@ public class GameBoard {
 	    int endX = this.cx + this.planetSize;
 	    int startY = this.cy - this.planetSize;
 	    int endY = this.cy + this.planetSize;
+	    
+	    int totalLinesCleared = 0;
 
 	    // TOP DIR
 	    for (int i = startY - 1; i >= 0; i--) {
@@ -364,8 +369,7 @@ public class GameBoard {
 	            // clear top row
 	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][0] = null;
 
-	            this.score += 100*this.getLevel();
-	            this.linesCleared++;
+	            totalLinesCleared++;
 	            i++; // recheck this row
 	        }
 	    }
@@ -391,8 +395,7 @@ public class GameBoard {
 	            // clear bottom row
 	            for (int j = startX; j <= endX; j++) this.placedBlocks[j][this.placedBlocks[0].length - 1] = null;
 
-	            this.score += 100;
-	            this.linesCleared++;
+	            totalLinesCleared++;
 	            i--; // recheck this row
 	        }
 	    }
@@ -418,8 +421,7 @@ public class GameBoard {
 	            // clear leftmost column
 	            for (int i = startY; i <= endY; i++) this.placedBlocks[0][i] = null;
 
-	            this.score += 100;
-	            this.linesCleared++;
+	            totalLinesCleared++;
 	            j++; // recheck this column
 	        }
 	    }
@@ -445,11 +447,16 @@ public class GameBoard {
 	            // clear rightmost column
 	            for (int i = startY; i <= endY; i++) this.placedBlocks[this.placedBlocks.length - 1][i] = null;
 
-	            this.score += 100;
-	            this.linesCleared++;
+	            totalLinesCleared++;
 	            j--; // recheck this column
 	        }
 	    }
+	    
+	    if (totalLinesCleared==1) this.score += 40 * (linesCleared/10);
+	    if (totalLinesCleared==2) this.score += 100 * (linesCleared/10);
+	    if (totalLinesCleared==3) this.score += 300 * (linesCleared/10);
+	    if (totalLinesCleared==4) this.score += 1200 * (linesCleared/10);
+	    linesCleared += totalLinesCleared;
 	    
 	    // update topPanel
 	}
@@ -616,5 +623,13 @@ public class GameBoard {
 
 	public int[][] getStats() {
 		return stats;
+	}
+
+	public int getCellSize() {
+		return cellSize;
+	}
+
+	public void setCellSize(int cellSize) {
+		this.cellSize = cellSize;
 	}
 }

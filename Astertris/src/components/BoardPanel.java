@@ -26,7 +26,7 @@ import java.awt.Color;
 public class BoardPanel extends JPanel implements MouseListener, MouseMotionListener {
 	private static final long serialVersionUID = 1226815287986568967L;
 	private GameBoard game;
-	private final int cellSize = 12;
+	private int cellSize;
 	
 	private Toolbox toolbox;
 	
@@ -50,10 +50,12 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 		this.listener = listener;
 	}
 	
-	private GameButton restartBtn;
+	// SPECIAL BTNS
+	private GameButton restartBtn_GameOver, restartBtn_Paused;
 	
 	public BoardPanel(GameBoard game, String gameState) {
 		this.game = game;
+		this.cellSize = game.getCellSize();
 		this.gameState = gameState;
 		this.stars = new ArrayList<Star>();
 		this.asteroids = new ArrayList<Asteroid>();
@@ -84,12 +86,14 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap.get("home").add(helpBtn);
         
         this.buttonsHashMap.put("paused", new ArrayList<>());
-        GameButton resumeBtn = new GameButton(230,350,150,75,false,24,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        GameButton resumeBtn = new GameButton(140,350,150,75,false,24,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("paused").add(resumeBtn);
+        restartBtn_Paused = new GameButton(320,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("paused").add(restartBtn_Paused);
         
         this.buttonsHashMap.put("gameOver", new ArrayList<>());
-        restartBtn = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
-        this.buttonsHashMap.get("gameOver").add(restartBtn);
+        restartBtn_GameOver = new GameButton(230,350,150,75,false,24,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        this.buttonsHashMap.get("gameOver").add(restartBtn_GameOver);
         
         this.buttonsHashMap.put("help_home", new ArrayList<>());
         GameButton backBtn = new GameButton(225,470,150,40,false,16,"BACK",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"home");
@@ -184,7 +188,9 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 					if (button.getNextGameState()!=null && listener != null) {
 						listener.onGameStateChange(button.getNextGameState());
 					}
-					if (button.equals(restartBtn)) {
+					
+					// SPECIAL BTNS ONLY
+					if (button.equals(restartBtn_GameOver) || button.equals(restartBtn_Paused)) {
 						game.restartGame();
 					}
 				}
@@ -342,6 +348,18 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    for (Asteroid asteroid : asteroids) {
 	    	asteroid.render(g2D);
 	    }
+	    
+	    // lines for working tetris areas
+	    
+	    g2D.setColor(new Color(30,20,15));
+	    
+	    // vertical lines
+	    g2D.fillRect(game.getCx()*cellSize-game.getPlanetSize()*cellSize, 0, 1, game.getHeight()*cellSize);
+	    g2D.fillRect(game.getCx()*cellSize+game.getPlanetSize()*cellSize+cellSize, 0, 1, game.getHeight()*cellSize);
+	    
+	    // horizontal lines
+	    g2D.fillRect(0, game.getCy()*cellSize-game.getPlanetSize()*cellSize, game.getWidth()*cellSize, 1);
+	    g2D.fillRect(0, game.getCy()*cellSize+game.getPlanetSize()*cellSize+cellSize, game.getWidth()*cellSize, 1);
 		
 	    // blocks
 		for (int i = 0;i<game.getHeight();i++) {
@@ -434,7 +452,7 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 //	    	g2D.setFont(toolbox.getFont(Font.PLAIN,16));
 //	    	g2D.drawString("Tetris, but on an asteroid!", 145, 270);
 	    	
-	    	g2D.drawImage(toolbox.getImage("logo_color.png"), 110, 150, 384, 192, this);
+	    	g2D.drawImage(toolbox.getImage("logo_asteroid_color.png"), 110, 150, 384, 192, this);
 	    	
 //	    	g2D.setColor(Color.WHITE);
 //	    	g2D.setFont(toolbox.getFont(Font.ITALIC,14));

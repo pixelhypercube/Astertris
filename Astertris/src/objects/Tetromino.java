@@ -76,11 +76,20 @@ public class Tetromino {
 	}
 
 	public void rotate(Direction dir) {
+		int oldW = this.w;
+		int oldH = this.h;
+		
 		int[][] newArr = this.getRotatedArr(dir);
 		this.selectedTetrominoShape = newArr;
 		
 		this.h = newArr.length;
 	    this.w = newArr[0].length;
+	    
+	    int dx = (oldH - this.w) / 2;
+	    int dy = (oldW - this.h) / 2;
+	    
+	    this.x += dx;
+	    this.y += dy;
 	    
 	    this.updateSolidBlocksPos();
 	}
