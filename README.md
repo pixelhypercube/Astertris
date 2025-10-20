@@ -2,8 +2,8 @@
 
 # Astertris (Beta)
 
-**Astertris** is a custom Java implementation of Tetris with a unique twist — radial gravity mechanics set in space!  
-Inspired by the classic falling-block puzzle game, Astertris adds new gameplay challenges while staying true to the original's addictive feel.
+**Astertris** is a custom Java implementation of <strong>Tetris</strong> with a unique twist — radial gravity mechanics set in space!  
+Inspired by the original <strong>Tetris</strong> game, Astertris adds new gameplay challenges while staying true to the original's addictive feel.
 
 ---
 
@@ -28,7 +28,7 @@ Some features are not fully implemented yet.
 ---
 
 ## Download
-[Latest Version (Beta 1.4.2)](https://github.com/pixelhypercube/Astertris/releases/tag/beta-1.4.2)
+[Latest Version (Beta 1.5.0)](https://github.com/pixelhypercube/Astertris/releases/tag/beta-1.5.0)
 
 ---
 
