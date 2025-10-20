@@ -96,13 +96,13 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
         this.buttonsHashMap.get("home").add(creditsBtn);
         
         this.buttonsHashMap.put("paused", new ArrayList<>());
-        GameButton resumeBtn = new GameButton(140,350,150,75,false,20,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        GameButton resumeBtn = new GameButton(205,380,150,50,false,20,"RESUME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("paused").add(resumeBtn);
-        restartBtn_Paused = new GameButton(320,350,150,75,false,20,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        restartBtn_Paused = new GameButton(385,380,150,50,false,15,"RESTART GAME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("paused").add(restartBtn_Paused);
         
         this.buttonsHashMap.put("gameOver", new ArrayList<>());
-        restartBtn_GameOver = new GameButton(230,350,150,75,false,20,"RESTART",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
+        restartBtn_GameOver = new GameButton(290,390,150,50,false,15,"RESTART GAME",Color.WHITE,new Color(30,30,30),Color.WHITE,null,"game");
         this.buttonsHashMap.get("gameOver").add(restartBtn_GameOver);
         
         this.buttonsHashMap.put("help_home", new ArrayList<>());
@@ -597,34 +597,47 @@ public class BoardPanel extends JPanel implements MouseListener, MouseMotionList
 	    	
 	    // PAUSED SCREEN
 	    } else if (this.gameState.equals("paused")) {
+	    	final int DIALOG_WIDTH = 400;
+	    	final int DIALOG_HEIGHT = 200;
+	    	
+	    	final int DIALOG_X = screenCx-DIALOG_WIDTH/2;
+	    	final int DIALOG_Y = screenCy-DIALOG_HEIGHT/2;
+	    	
 	    	g2D.setColor(Color.BLACK);
-	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.fillRect(DIALOG_X, DIALOG_Y, DIALOG_WIDTH, DIALOG_HEIGHT);
 	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.drawRect(DIALOG_X, DIALOG_Y, DIALOG_WIDTH, DIALOG_HEIGHT);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.BOLD,35));
-	    	g2D.drawString("Game Paused!", 140, 240);
+	    	g2D.drawString("Game Paused!", DIALOG_X+40, DIALOG_Y+60);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.PLAIN,15));
-	    	g2D.drawString("Press 'P' or 'Esc' to unpause!", 155, 280);
+	    	g2D.drawString("Press 'P' or 'Esc' to unpause!", DIALOG_X+50, DIALOG_Y+85);
 	    // GAME OVER SCREEN
 	    } else if (this.gameState.equals("gameOver")) {
+	    	
+	    	final int DIALOG_WIDTH = 400;
+	    	final int DIALOG_HEIGHT = 200;
+	    	
+	    	final int DIALOG_X = screenCx-DIALOG_WIDTH/2;
+	    	final int DIALOG_Y = screenCy-DIALOG_HEIGHT/2;
+	    	
 //	    	gameover window
 	    	g2D.setColor(Color.BLACK);
-	    	g2D.fillRect(130, 170, 345, 160);
+	    	g2D.fillRect(DIALOG_X, DIALOG_Y, DIALOG_WIDTH, DIALOG_HEIGHT);
 	    	g2D.setColor(Color.WHITE);
-	    	g2D.drawRect(130, 170, 345, 160);
+	    	g2D.drawRect(DIALOG_X, DIALOG_Y, DIALOG_WIDTH, DIALOG_HEIGHT);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.BOLD,40));
-	    	g2D.drawString("Game Over!", 150, 240);
+	    	g2D.drawString("Game Over!", DIALOG_X+40, DIALOG_Y+60);
 	    	
 	    	g2D.setColor(Color.WHITE);
 	    	g2D.setFont(toolbox.getFont(Font.PLAIN,20));
-	    	g2D.drawString("Score: ", 200, 280);
-	    	g2D.drawString(toolbox.renderInt(6,game.getScore()),300,280);
+	    	g2D.drawString("Score: ", DIALOG_X+110, DIALOG_Y+100);
+	    	g2D.drawString(toolbox.renderInt(6,game.getScore()), DIALOG_X+200, DIALOG_Y+100);
 //	    	g2D.drawString("High Score: "+game.getScore(), 250, 280);
 	    } else if (this.gameState.equals("help_home") || this.gameState.equals("help_game")) {
 	    	this.renderHelpDialog(g);

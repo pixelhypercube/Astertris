@@ -62,6 +62,8 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 		setResizable(false);
 		setIconImage(toolbox.getImage("icon.png"));
 		
+		
+		
 //		components
 		
 		// init game
@@ -139,6 +141,9 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    	boardPanel.updateAsteroids();
 	    	boardPanel.repaint();
 	    });
+	    
+//	    DEBUG ONLY!!!
+//	    this.toggleGameState("paused");
 	}
 	
 	// helper function to set the tetrisFallTimer delay
