@@ -20,7 +20,7 @@ import utils.Toolbox;
 public class Astertris extends JFrame implements KeyListener, GameStateListener {
 	
 	private static final long serialVersionUID = 5953697399851869782L;
-	final static int WIDTH = 37, HEIGHT = 37, PLANET_SIZE = 5; 
+	final static int WIDTH = 46, HEIGHT = 46, PLANET_SIZE = 5; 
 	GameBoard game;
 	
 //	components
@@ -38,11 +38,12 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	
 	private final int cellSize = 16;
 	
-	private final int nextTetPanelWidth = 150, statPanelWidth = 165, gameWidth = WIDTH*cellSize;
+	private final int nextTetPanelWidth = 150, statPanelWidth = 170, gameWidth = WIDTH*cellSize;
 	private final int topPanelHeight = 40;
 	
-	Timer timer = new Timer(500,null);
-	Timer starTimer = new Timer(20,null);
+	Timer tetrisFallTimer = new Timer(800,null);
+	Timer starRenderTimer = new Timer(20,null);
+	Timer starGenTimer = new Timer(500,null);
 	Timer asteroidTimer = new Timer(30,null);
 	
 	// list of active keys
@@ -103,13 +104,17 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 //	    add(gameOverLabel);
 //	    add(pausedLabel);
 	    
-//	    update timer for tetromino to sink by gravity
+//	    update tetrisFallTimer for tetromino to sink by gravity
 	    
-	    timer.addActionListener(e -> {
+	    tetrisFallTimer.addActionListener(e -> {
 	    	game.updateTetromino();
 	    	this.updateBoard();
 	    	this.updateTimerDelay();
 	    	
+	    	if (game.getGameOver()) this.toggleGameState("gameOver");
+	    });
+	    
+	    starGenTimer.addActionListener(e -> {
 	    	// generate stars / asteroids
 	    	if (Math.random()<0.5) {
     			int size = (int)(Math.random()*5)+2;
@@ -123,11 +128,9 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    	if (Math.random()<0.01) {
     			this.boardPanel.generateAsteroid(12);
     		}
-	    	
-	    	if (game.getGameOver()) this.toggleGameState("gameOver");
 	    });
 	    
-	    starTimer.addActionListener(e -> {
+	    starRenderTimer.addActionListener(e -> {
 	    	boardPanel.updateStars();
 	    	boardPanel.repaint();
 	    });
@@ -138,16 +141,43 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 	    });
 	}
 	
-	// helper function to set the timer delay
+	// helper function to set the tetrisFallTimer delay
 	public void updateTimerDelay() {
 		int linesCleared = game.getLinesCleared();
+		int level = linesCleared/10;
+		/*
 		
-		int baseDelay = 500;
-		int minimumDelay = 100;
-		int newDelay = Math.max(minimumDelay,baseDelay - ((int)linesCleared/10 * 50));
+		Level	Frames per Gridcell
+		00	48
+		01	43
+		02	38
+		03	33
+		04	28
+		05	23
+		06	18
+		07	13
+		08	8
+		09	6
+		10–12	5
+		13–15	4
+		16–18	3
+		19–28	2
+		29+	1 
+		*/
 		
-		if (timer.getDelay() != newDelay) {
-			timer.setDelay(newDelay);
+		int framesPerGridCell = 48;
+		if (level>=0 && level<=8) framesPerGridCell -= level*5;
+		else if (level==9) framesPerGridCell = 6;
+		else if (level>=10 && level<=12) framesPerGridCell = 5;
+		else if (level>=13 && level<=15) framesPerGridCell = 4;
+		else if (level>=16 && level<=18) framesPerGridCell = 3;
+		else if (level>=19 && level<=28) framesPerGridCell = 2;
+		else if (level>=29) framesPerGridCell = 1;
+		
+		final int MS_PER_FRAME = 17; // 16.67
+		int newDelay = framesPerGridCell * MS_PER_FRAME;
+		if (tetrisFallTimer.getDelay() != newDelay) {
+			tetrisFallTimer.setDelay(newDelay);
 		}
 	}
 	
@@ -161,38 +191,44 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 		boardPanel.setGameState(this.gameState);
 		if (gameState.equals("game")) {
 //			pausedLabel.setText("Press 'P' or 'Esc' to pause!");
-			timer.start();
-			starTimer.start();
+			tetrisFallTimer.start();
+			starRenderTimer.start();
+			starGenTimer.start();
 			asteroidTimer.start();
 			
 //			gameOverLabel.setVisible(false);
 		} 
 		else if (gameState.equals("home")) {
-			timer.stop();
-			starTimer.stop();
+			tetrisFallTimer.stop();
+			starRenderTimer.stop();
+			starGenTimer.stop();
 			asteroidTimer.stop();
 		}
 		else if (gameState.equals("paused")) {
 //			pausedLabel.setText("Press 'P' or 'Esc' to unpause!");
-			timer.stop();
-			starTimer.stop();
+			tetrisFallTimer.stop();
+			starRenderTimer.stop();
+			starGenTimer.stop();
 			asteroidTimer.stop();
 		}
 		else if (gameState.equals("gameOver")) {
-			timer.stop();
-			starTimer.stop();
+			tetrisFallTimer.stop();
+			starRenderTimer.stop();
+			starGenTimer.stop();
 			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
 		else if (gameState.equals("help_home")) {
-			timer.stop();
-			starTimer.stop();
+			tetrisFallTimer.stop();
+			starRenderTimer.stop();
+			starGenTimer.stop();
 			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
 		else if (gameState.equals("help_game")) {
-			timer.stop();
-			starTimer.stop();
+			tetrisFallTimer.stop();
+			starRenderTimer.stop();
+			starGenTimer.stop();
 			asteroidTimer.stop();
 //			gameOverLabel.setVisible(true);
 		}
@@ -248,7 +284,9 @@ public class Astertris extends JFrame implements KeyListener, GameStateListener 
 		if (key == KeyEvent.VK_P || key == KeyEvent.VK_ESCAPE) {
 	        if (this.gameState.equals("paused")) this.toggleGameState("game");
 	        else if (this.gameState.equals("game")) this.toggleGameState("paused");
-	    } 
+	    } else if (key == KeyEvent.VK_H && this.gameState.equals("game")) {
+	    	this.toggleGameState("help_game");
+	    }
 		
 		this.handleMultipleInputs();
 	}

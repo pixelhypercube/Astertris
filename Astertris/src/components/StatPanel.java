@@ -88,7 +88,7 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.fillRect(0,38,width,2);
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("BETA 1.4.3",8,25);
+		g2d.drawString("BETA 1.5.0",8,25);
 		
 		g2d.setColor(new Color(127,127,127));
 		g2d.fillRect(width-2,0,2,height);
@@ -133,20 +133,24 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 
 			            // right
 			            g2d.fillRect(drawX+cellSize-2,drawY,2,cellSize);
+			            
+			            // draw outline
+			            g2d.setColor(Color.BLACK);
+			            g2d.drawRect(drawX,drawY,cellSize,cellSize);
 					}
 				}
 			}
 			
 			g2d.setColor(new Color(150,75,20));
 			g2d.setFont(toolbox.getFont(Font.PLAIN, 22));
-			g2d.drawString(""+stats[index++][1], offsetX+70, offsetY+8+cellSize*tetShape.length/2);
+			g2d.drawString(""+toolbox.renderInt(3,stats[index++][1]), offsetX+70, offsetY+8+cellSize*tetShape.length/2);
 			
 			offsetY += tetShape.length * cellSize + padding;
 		}
 		
 		
 		g2d.setColor(Color.WHITE);
-		g2d.setFont(toolbox.getFont(Font.PLAIN, 16));
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
 		g2d.drawString("CONTROLS:",8,580);
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
@@ -154,6 +158,31 @@ public class StatPanel extends JPanel implements MouseListener, MouseMotionListe
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
 		g2d.drawString("ESC/P - PAUSE",8,620);
+
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("W /   - ROT. CC",8,640);
+		g2d.setFont(new Font("Arial",Font.BOLD,14));
+		g2d.drawString("↑",42,640);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("A /   - MOVE LEFT",8,660);
+		g2d.setFont(new Font("Arial",Font.BOLD,14));
+		g2d.drawString("←",38,660);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("S /   - ROT. CW",8,680);
+		g2d.setFont(new Font("Arial",Font.BOLD,14));
+		g2d.drawString("↓",42,680);
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("D /   - MOVE RIGHT",8,700);
+		g2d.setFont(new Font("Arial",Font.BOLD,14));
+		g2d.drawString("→",38,700);
+		
+		g2d.setColor(Color.WHITE);
+		g2d.setFont(toolbox.getFont(Font.PLAIN, 12));
+		g2d.drawString("SPACE - SPEED UP",8,720);
 		
 //		// score
 //    	g2d.setColor(Color.white);

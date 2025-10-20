@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 public class Toolbox {
 	
@@ -131,6 +133,18 @@ public class Toolbox {
 			e.printStackTrace();
 		}
 		return myImage;
+	}
+	
+	// for gifs
+	
+	public ImageIcon getGifImage(String path) {
+		String resourcePath = IMAGE_DIR + path;
+		java.net.URL imgURL = getClass().getResource(resourcePath);
+		if (imgURL != null) return new ImageIcon(imgURL);
+		else {
+			System.err.println("GIF not found: "+resourcePath);
+			return null;
+		}
 	}
 	
 	public Color getColorFromHSL(int h, int s, int l) {

@@ -69,9 +69,9 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
         
         this.buttons = new ArrayList<GameButton>();
         
-        int btnPadding = 10;
-        GameButton button = new GameButton(btnPadding,550,width-btnPadding*2,80,true,16,"GITHUB\nLINK",Color.WHITE,new Color(30,30,30),Color.WHITE,"https://github.com/pixelhypercube/Astertris",null);
-        this.buttons.add(button);
+//        int btnPadding = 10;
+//        GameButton button = new GameButton(btnPadding,680,width-btnPadding*2,80,true,16,"GITHUB\nLINK",Color.WHITE,new Color(30,30,30),Color.WHITE,"https://github.com/pixelhypercube/Astertris",null);
+//        this.buttons.add(button);
         
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
@@ -124,6 +124,10 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 
 			            // right
 			            g2d.fillRect(drawX+cellSize-2,drawY,2,cellSize);
+			            
+			            // draw outline
+			            g2d.setColor(Color.BLACK);
+			            g2d.drawRect(drawX,drawY,cellSize,cellSize);
 					}
 				}
 			}
@@ -155,7 +159,7 @@ public class NextTetPanel extends JPanel implements MouseListener, MouseMotionLi
 		// LEVEL
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("LEVEL: "+(1+(game.getLinesCleared()/10)), 10, 25);
+		g2d.drawString("LEVEL: "+toolbox.renderInt(3,game.getLinesCleared()/10), 10, 25);
 //		g2d.drawString(""+(1+(game.getLinesCleared()/10)), 43, 50);
 		
 		

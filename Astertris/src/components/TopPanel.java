@@ -42,7 +42,7 @@ public class TopPanel extends JPanel implements MouseListener, MouseMotionListen
 		
 		g2d.setColor(Color.WHITE);
 		g2d.setFont(toolbox.getFont(Font.PLAIN, 20));
-		g2d.drawString("LINES: "+toolbox.renderInt(3,game.getLinesCleared()),430,25);
+		g2d.drawString("LINES: "+toolbox.renderInt(3,game.getLinesCleared()),570,25);
 	}
 	
 	@Override

@@ -452,10 +452,11 @@ public class GameBoard {
 	        }
 	    }
 	    
-	    if (totalLinesCleared==1) this.score += 40 * (linesCleared/10);
-	    if (totalLinesCleared==2) this.score += 100 * (linesCleared/10);
-	    if (totalLinesCleared==3) this.score += 300 * (linesCleared/10);
-	    if (totalLinesCleared==4) this.score += 1200 * (linesCleared/10);
+	    if (totalLinesCleared==1) this.score += 40 * (1 + linesCleared/10);
+	    else if (totalLinesCleared==2) this.score += 100 * (1 + linesCleared/10);
+	    else if (totalLinesCleared==3) this.score += 300 * (1 + linesCleared/10);
+	    else if (totalLinesCleared==4) this.score += 1200 * (1 + linesCleared/10);
+	    else this.score += Math.random()*15;
 	    linesCleared += totalLinesCleared;
 	    
 	    // update topPanel
